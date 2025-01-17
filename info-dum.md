@@ -11,13 +11,17 @@ server {
     server_name alwaysdumb.com www.alwaysdumb.com;
 
     root /var/www/out;
-    index index.html;
+
+    location / {
+        try_files $uri $uri.html $uri/ =404;
+    }
 
     access_log /var/log/nginx/alwaysdumb_access.log;
     error_log  /var/log/nginx/alwaysdumb_error warn;
 
-    location / {
-        try_files $uri $uri/ =404;
+    error_page 404 /404.html;
+    location = /404.html {
+        internal;
     }
 }
 ```
@@ -36,7 +40,6 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 ```
 Then just use `pnpm run build` to generate the `out` file with static content
-**Need to do** -> automatically replace the old `out` in `/var/www/out` of nginx with current `out` in `./frontend/out`
 
 
 ### Common Instruction
