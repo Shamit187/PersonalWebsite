@@ -30,11 +30,11 @@ function isParallel(x1: number, y1: number, x2: number, y2: number, z: number): 
 }
 
 function generateRotation(): number {
-  return -30 + Math.random() * 60; // Random value between 0 and 45
+  return -30 + Math.random() * 60;
 }
 
-function generateScale(): number {
-  return 0.8 + Math.random() * 0.6; // Random value between 0.9 and 1.1
+function generateScale(isMobile: boolean): number {
+  return 0.8 + Math.random() * (isMobile? 0.2 : 0.6); 
 }
 
 interface WindowSize {
@@ -76,22 +76,10 @@ export default function Home() {
       { text: "Blog", link: "/#" },
       { text: "Art Gallery", link: "/#" },
       { text: "Game Dev Journal", link: "/#" },
-      { text: "Email Me", link: "/#" },
-      { text: "Portfolio", link: "/#" },
-      { text: "Resume", link: "/#" },
+      { text: "Contact Me", link: "/#" },
       { text: "Projects", link: "/#" },
       { text: "Photography", link: "/#" },
-      { text: "Contact", link: "/#" },
-      { text: "Testimonials", link: "/#" },
-      { text: "FAQ", link: "/#" },
-      { text: "Team", link: "/#" },
-      { text: "Careers", link: "/#" },
-      { text: "Community", link: "/#" },
-      { text: "Events", link: "/#" },
-      { text: "News", link: "/#" },
-      { text: "Resources", link: "/#" },
-      { text: "Help Center", link: "/#" },
-      { text: "Settings", link: "/#" },
+      { text: "Music", link: "/#" },
     ];
     const buttonClasses = [
       "btn-blue",
@@ -104,7 +92,7 @@ export default function Home() {
       "btn-purple",
     ];
 
-    const minDistance = 8;
+    const minDistance = isMobile? 15: 8;
     const parallelThreshold = 0;
     const generatedDivs: ChaosDiv[] = [];
 
@@ -117,16 +105,16 @@ export default function Home() {
       parallelThreshold: number,
       styleclass: string
     ): ChaosDiv {
-      const meanX = isMobile ? 50 : 75; // Center x for mobile
-      const meanY = 75; // Center y
+      const meanX = isMobile ? 45 : 75; // Center x for mobile
+      const meanY = isMobile ? 70 : 75; // Center y
       const dev = 5;
       let iteration_dev = dev;
 
       while (true) {
-        const x = Math.max(isMobile ? 0 : 25 , Math.min(90, randomGaussian(meanX, iteration_dev)));
-        const y = Math.max(isMobile ? 25 : 10, Math.min(90, randomGaussian(meanY, iteration_dev)));
+        const x = Math.max(isMobile ? 0 : 25 , Math.min(isMobile? 85 : 90, randomGaussian(meanX, iteration_dev)));
+        const y = Math.max(isMobile ? 25 : 10, Math.min(isMobile? 85 : 90, randomGaussian(meanY, iteration_dev)));
         const rotation = generateRotation();
-        const scale = generateScale();
+        const scale = generateScale(isMobile);
 
         const isFarEnough = chaosDivs.every(
           (div) =>
