@@ -56,3 +56,20 @@ Then just use `pnpm run build` to generate the `out` file with static content
 - firewall delete specific rule `ufw delete 1`
 - stop nginx `systemctl stop nginx`
 - get nginx status `systemctl status nginx`
+
+### wsl routing for windows development
+
+- netsh interface portproxy add v4tov4 listenport=<outside-port> listenaddress=0.0.0.0 connectport=<wsl-port> connectaddress=<wsl-ip>
+
+### easy 1 commandd ssl ceritification
+
+- https://certbot.eff.org/instructions?ws=nginx&os=pip
+- sudo certbot --nginx
+- If you lose control of the domain (e.g., it expires or changes ownership), you must revoke the certificate immediately. You cannot keep using the certificate once the domain isn't under your control.
+- If any information in the certificate becomes incorrect (e.g., a change in your organization details or domain ownership), you must revoke it even if the certificate is still functioning correctly.
+- Certificates cannot be used in systems requiring fail-safe performance, such as air traffic control, nuclear facilities, or medical systems where failure could cause harm.
+- Do not use certificates to enable systems that facilitate interception of encrypted communications, even with user consent (e.g., traffic inspection systems).
+- Be aware that Let’s Encrypt may publish some details of your certificates (e.g., domain name, issue/expiry date) as part of their transparency practices.
+- When requesting revocation, you must follow Let’s Encrypt’s official revocation guidelines and provide an appropriate revocation reason code.
+- Your agreement with Let’s Encrypt automatically terminates if you no longer have any valid certificates issued by them. You don’t need to manually cancel the agreement.
+- You are expected to inspect your certificates immediately upon issuance. If there are errors, you must request revocation right away, even if the ACME client doesn't flag them.
