@@ -5,6 +5,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-primary: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,5 +19,68 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-primary), sans-serif;
+}
+
+.title-font {
+  color: var(--foreground);
+  @apply text-base lg:text-9xl;
+}
+
+.base-font {
+  color: var(--foreground);
+  @apply text-xs lg:text-base;
+}
+
+.inverted-base-font {
+  color: var(--background);
+  @apply text-xs lg:text-base;
+}
+
+.chaos-box {
+  color: var(--background);
+  font-family: var(--font-mono), monospace;
+  @apply text-xs lg:text-base font-semibold p-4 rounded drop-shadow-2xl;
+
+  /* Initial state */
+  transform: scale(1);
+  transition: transform 0.3s ease-in-out, box-shadow 0.1s ease-in-out;
+
+  /* Hover state */
+  &:hover {
+    transform: scale(1.1); /* Slightly grow */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25); /* Enhanced shadow effect */
+  }
+}
+/* Button Styles */
+.btn-blue {
+  @apply  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800  px-5 py-2.5 text-center me-2 mb-2;
+}
+
+.btn-green {
+  @apply  bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800  px-5 py-2.5 text-center me-2 mb-2;
+}
+
+.btn-cyan {
+  @apply  bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800  px-5 py-2.5 text-center me-2 mb-2;
+}
+
+.btn-teal {
+  @apply  bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800  px-5 py-2.5 text-center me-2 mb-2;
+}
+
+.btn-lime {
+  @apply  bg-gradient-to-r from-lime-200 via-lime-400 to-lime-500 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-lime-300 dark:focus:ring-lime-800  px-5 py-2.5 text-center me-2 mb-2;
+}
+
+.btn-red {
+  @apply  bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800  px-5 py-2.5 text-center me-2 mb-2;
+}
+
+.btn-pink {
+  @apply  bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-pink-300 dark:focus:ring-pink-800  px-5 py-2.5 text-center me-2 mb-2;
+}
+
+.btn-purple {
+  @apply  bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800  px-5 py-2.5 text-center me-2 mb-2;
 }
