@@ -74,7 +74,72 @@ Then just use `pnpm run build` to generate the `out` file with static content
 - Your agreement with Let’s Encrypt automatically terminates if you no longer have any valid certificates issued by them. You don’t need to manually cancel the agreement.
 - You are expected to inspect your certificates immediately upon issuance. If there are errors, you must request revocation right away, even if the ACME client doesn't flag them.
 
-## Blog
+# Blog
+
+## System Setup
+
+### Reverse Proxy to add service
+```
+server {
+    server_name blog.alwaysdumb.com;
+
+    # root /var/www/html;
+    # index index.html index.htm index.nginx-debian.html;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000; # Proxy to your Axum server
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection keep-alive;
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    listen [::]:443 ssl; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/blog.alwaysdumb.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/blog.alwaysdumb.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {
+    if ($host = blog.alwaysdumb.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80;
+    listen [::]:80;
+
+    server_name blog.alwaysdumb.com;
+    return 404; # managed by Certbot
+}
+```
+
+## systemd unit file
+file name `/etc/systemd/system/blog_server.service`
+```
+[Unit]
+Description=Rust Axum Blog Server
+After=network.target
+
+[Service]
+ExecStart=/root/PersonalWebsite/blog/target/release/blog
+WorkingDirectory=/root/PersonalWebsite/blog
+Restart=always
+User=root
+Environment=RUST_LOG=info
+
+[Install]
+WantedBy=multi-user.target
+```
+turn the service on by `sudo systemctl start blog_server`
+reload `/etc/systemd/system/blog_server.service`
+enable on boot `sudo systemctl enable blog_server`
+check status `sudo systemctl status blog_server`
+restart/stop `sudo systemctl stop/restart blog_server`
 
 ### sqlite
 - sudo apt install sqlite3 libsqlite3-dev
