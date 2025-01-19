@@ -73,3 +73,8 @@ Then just use `pnpm run build` to generate the `out` file with static content
 - When requesting revocation, you must follow Let’s Encrypt’s official revocation guidelines and provide an appropriate revocation reason code.
 - Your agreement with Let’s Encrypt automatically terminates if you no longer have any valid certificates issued by them. You don’t need to manually cancel the agreement.
 - You are expected to inspect your certificates immediately upon issuance. If there are errors, you must request revocation right away, even if the ACME client doesn't flag them.
+
+## Blog
+
+### sqlite
+- sudo apt install sqlite3 libsqlite3-dev
