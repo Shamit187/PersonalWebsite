@@ -5,7 +5,9 @@ pub struct Blog {
     pub slug: String,
     pub path: String,
     pub title: String,
+    pub author: String,
     pub description: String,
+    pub audio: Option<String>,
     pub click_count: i32,
     pub created_at: String,
     pub updated_at: String,
@@ -31,17 +33,19 @@ impl Database {
     // Fetch all blogs
     pub fn fetch_all_blogs(&self) -> Result<Vec<Blog>> {
         let mut stmt = self.connection.prepare(
-            "SELECT slug, title, description, created_at FROM files;"
+            "SELECT slug, title, author, description, created_at, click_count FROM files;"
         )?;
         let blogs = stmt.query_map([], |row| {
             Ok(Blog {
                 slug: row.get(0)?,
                 title: row.get(1)?,
-                description: row.get(2)?,
-                created_at: row.get(3)?,
-                path: String::new(),      // Dummy value since path isn't fetched
-                click_count: 0,           // Dummy value since click_count isn't fetched
-                updated_at: String::new() // Dummy value since updated_at isn't fetched
+                author: row.get(2)?,
+                description: row.get(3)?,
+                audio: None,              
+                created_at: row.get(4)?,
+                path: String::new(),      
+                click_count: row.get(5)?,           
+                updated_at: String::new() 
             })
         })?;
     
@@ -51,7 +55,7 @@ impl Database {
     // Fetch a single blog by slug
     pub fn fetch_blog_by_slug(&self, slug: &str) -> Result<Option<Blog>> {
         let mut stmt = self.connection.prepare(
-            "SELECT slug, path, title, description, click_count, created_at, updated_at
+            "SELECT slug, path, title, author, description, audio, click_count, created_at, updated_at
              FROM files WHERE slug = ?1;"
         )?;
         stmt.query_row([slug], |row| {
@@ -59,10 +63,12 @@ impl Database {
                 slug: row.get(0)?,
                 path: row.get(1)?,
                 title: row.get(2)?,
-                description: row.get(3)?,
-                click_count: row.get(4)?,
-                created_at: row.get(5)?,
-                updated_at: row.get(6)?,
+                author: row.get(3)?,
+                description: row.get(4)?,
+                audio: row.get(5)?,
+                click_count: row.get(6)?,
+                created_at: row.get(7)?,
+                updated_at: row.get(8)?,
             })
         })
         .optional()

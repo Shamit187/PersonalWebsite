@@ -46,8 +46,8 @@ async fn root(State(state): State<Arc<AppState>>) -> Html<String> {
         .into_iter()
         .map(|blog| {
             format!(
-                "<li><h2><a href='/blog/{}'>{}</a></h2><p>{}</p><p><em>Clicks: {}</em></p></li>",
-                blog.slug, blog.title, blog.description, blog.created_at
+                "<li><h2><a href='/blog/{}'>{}</a></h2><p>{}</p><p><em>Clicks: {}</em></p><p><em>Created At: {}</em></p></li>",
+                blog.slug, blog.title, blog.description, blog.click_count, blog.created_at
             )
         })
         .collect::<Vec<_>>()
