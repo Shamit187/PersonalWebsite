@@ -1,6 +1,6 @@
 ### Markdown-to-HTML Conversion Rules
 
-#### **1. Headers**
+#### **1. Headers** BlockEnum
 
 - **Syntax**:
   - `# Header 1` → `<div class="header-1">Section</div>`
@@ -10,7 +10,7 @@
 
 ---
 
-#### **2. Images**
+#### **2. Images** BlockEnum
 
 - **Syntax**:
   ```
@@ -26,7 +26,7 @@
 
 ---
 
-#### **3. Lists**
+#### **3. Lists** BlockEnum
 
 - **Syntax**:
   ```
@@ -57,7 +57,7 @@
 
 ---
 
-#### **4. Tables**
+#### **4. Tables** BlockEnum
 
 - **Syntax**:
   ```
@@ -96,7 +96,7 @@
 
 ---
 
-#### **5. Highlighted Text**
+#### **5. Highlighted Text** 
 
 - **Syntax**: `==highlight=={color:red}` → `<span class="highlight" style="background-color: red;">highlight</span>`
 - specific colors:
@@ -152,7 +152,7 @@
 
 ---
 
-#### **8. Callouts (Notes/Warnings/Info)**
+#### **8. Callouts (Notes/Warnings/Info)** BlockEnum
 
 - **Syntax**:
   ```
@@ -170,7 +170,7 @@
 
 ---
 
-#### **9. Footnotes**
+#### **9. Footnotes** BlockEnum
 
 - **Syntax**:
   ```
@@ -192,7 +192,7 @@
 
 ---
 
-#### **10. Collapsible Sections**
+#### **10. Collapsible Sections** BlockEnum
 
 - **Syntax**:
   ```
@@ -210,7 +210,7 @@
 
 ---
 
-#### **11. Task Lists**
+#### **11. Task Lists** BlockEnum
 
 - **Syntax**:
   ```
@@ -235,17 +235,17 @@
 
 ---
 
-#### **13. Block Math**
+#### **13. Block Math** BlockEnum
 
 - **Syntax**:
   ```
-  $$
+  $$ {ref: equation-id}
   \int_a^b x^2 dx
   $$
   ```
   - Translates to:
     ```html
-    <div class="math-block">
+    <div class="math-block" id="equation-id">
       \int_a^b x^2 dx
     </div>
     ```
@@ -276,12 +276,13 @@
   - **Italic**: `*italic*` → `<span class="italic">italic</span>`
   - **Underline**: `_underline_` → `<span class="underline">underline</span>`
   - **Strikethrough**: `~~strikethrough~~` → `<span class="strikethrough">strikethrough</span>`
-  - **Strong**: `***strong***` → `<span class="strong">strong</span>`
   - **Monospace**: `` `monospace` `` → `<span class="monospace">monospace</span>`
+  - **Superscript**: `^^superscript^^` → `<span class="superscript">superscript</span>`
+  - **Subscript**: `,,subscript,,` → `<span class="subscript">subscript</span>`
 
 ---
 
-#### **16. Scripted JS Canvas**
+#### **16. Scripted JS Canvas** BlockEnum
 
 - **Syntax**:
   ```
@@ -312,8 +313,8 @@
     ```
 
 --- 
-
-#### **17. Horizontal Line** 
+ 
+#### **17. Horizontal Line** BlockEnum
 
 -  **Syntax** : `---`  → `<hr class="horizontal-line" />` 
 
@@ -321,15 +322,15 @@
 
 
 
-#### **18. Audio Stamp** 
+#### **18. Audio Stamp**  BlockEnum
 
 - **Syntax :** `@04:45` → `<div class="audio-stamp" id="4-45-audio">`
 
 
 ---
 
-#### **19. Multiple-Choice Questions**
-
+#### **19. Multiple-Choice Questions** BlockEnum
+ 
 - **Syntax**:
   ```
   :::question {ref: question-id}
@@ -413,7 +414,7 @@
 
 ---
 
-#### **22. Embedded Videos**
+#### **22. Embedded Videos** BlockEnum
 
 - **Syntax**:
   ```
@@ -435,7 +436,7 @@
 
 ---
 
-#### **23. Quotes with Attribution**
+#### **23. Quotes with Attribution** BlockEnum
 
 - **Syntax**:
   ```
@@ -453,7 +454,7 @@
     ```
 ---
 
-#### **25. FAQ Section**
+#### **25. FAQ Section** BlockEnum
 
 - **Syntax**:
   ```
