@@ -1,4 +1,6 @@
 use axum::{
+    body::Body,
+    http::StatusCode,
     extract::State,
     extract::Path,
     response::Html,
@@ -31,6 +33,8 @@ async fn main() {
     let app = Router::new()
         .route("/", get(root))
         .route("/blog/{slug}", get(blog_post))
+        .route("/get-list/{start}/{end}", get(get_list))
+        // .route("/favicon.ico", get(favicon))
         .with_state(Arc::new(app_state));
 
     // Start the server
@@ -39,24 +43,22 @@ async fn main() {
 }
 
 // Handler for the root route
-async fn root(State(state): State<Arc<AppState>>) -> Html<String> {
-    let db = state.db.lock().await;
+async fn root() -> Response {
+    // Path to the HTML file
+    let file_path = "pages/index.html";
 
-    // Fetch all blogs
-    let blogs = db.fetch_all_blogs().expect("Failed to fetch blogs");
-
-    let blog_list = blogs
-        .into_iter()
-        .map(|blog| {
-            format!(
-                "<li><h2><a href='/blog/{}'>{}</a></h2><p>{}</p><p><em>Clicks: {}</em></p><p><em>Created At: {}</em></p></li>",
-                blog.slug, blog.title, blog.description, blog.click_count, blog.created_at
-            )
-        })
-        .collect::<Vec<_>>()
-        .join("");
-
-    Html(format!("<h1>Blog List</h1><ul>{}</ul>", blog_list))
+    // Read the file
+    match fs::read_to_string(file_path) {
+        Ok(content) => Response::builder()
+            .header("Content-Type", "text/html; charset=utf-8")
+            .body(content.into())
+            .unwrap(),
+        Err(_) => Response::builder()
+            .status(500)
+            .header("Content-Type", "text/plain; charset=utf-8")
+            .body("Failed to load the index.html file.".into())
+            .unwrap(),
+    }
 }
 
 // Handler for a specific blog post
@@ -102,3 +104,58 @@ async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>)
             .unwrap(),
     }
 }
+
+// Handler for the /get-list/{start}/{end} API
+async fn get_list(
+    Path((start, end)): Path<(i64, i64)>,
+    State(state): State<Arc<AppState>>,
+) -> Html<String> {
+    println!("start: {}, end: {}", start, end);
+
+    let db = state.db.lock().await;
+
+    // Fetch blogs in the range
+    let blogs = db
+        .fetch_blogs_in_range(start, end)
+        .expect("Failed to fetch blogs");
+
+    // Build the HTML string
+    let html_content = blogs
+        .into_iter()
+        .map(|blog| {
+            let tags_html = blog
+                .tags
+                .into_iter()
+                .map(|tag| format!(r#"<div class="blog-tag">{}</div>"#, tag.name))
+                .collect::<Vec<_>>()
+                .join("");
+
+            format!(
+                r#"
+                <div class="blog" onclick="location.href='/blog/{}';">
+                    <div class="blog-title">{}</div>
+                    <div class="blog-date">Created In: {}</div>
+                    <div class="blog-description">{}</div>
+                    <div class="blog-tag-list">{}</div>
+                </div>
+                "#,
+                blog.slug, blog.title, blog.created_at, blog.description, tags_html
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    Html(html_content)
+}
+
+// async fn favicon() -> Result<Response<Body>, (StatusCode, &'static str)> {
+//     let file_path = "pages/favicon.ico"; // Path to the favicon
+
+//     match fs::read(file_path) {
+//         Ok(contents) => Ok(Response::builder()
+//             .header("Content-Type", "image/x-icon")
+//             .body(Body::from(contents))
+//             .unwrap()),
+//         Err(_) => Err((StatusCode::NOT_FOUND, "Favicon not found")),
+//     }
+// }
