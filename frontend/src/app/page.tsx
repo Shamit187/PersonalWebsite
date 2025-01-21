@@ -73,7 +73,7 @@ export default function Home() {
   useEffect(() => {
     const contentArray = [
       { text: "About Me", link: "/#" },
-      { text: "Blog", link: "/#" },
+      { text: "Blog", link: "https://blog.alwaysdumb.com/"},
       { text: "Art Gallery", link: "/#" },
       { text: "Game Dev Journal", link: "/#" },
       { text: "Contact Me", link: "/#" },

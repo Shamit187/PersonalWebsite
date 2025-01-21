@@ -2,6 +2,7 @@ use axum::{
     extract::State,
     extract::Path,
     response::Html,
+    response::Response,
     routing::get,
     Router,
 };
@@ -11,6 +12,8 @@ use std::fs;
 
 mod database;
 use database::{Database, Blog};
+
+mod parser;
 
 struct AppState {
     db: Arc<Mutex<Database>>,
@@ -57,7 +60,7 @@ async fn root(State(state): State<Arc<AppState>>) -> Html<String> {
 }
 
 // Handler for a specific blog post
-async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>) -> Html<String> {
+async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>) -> Response {
     let db = state.db.lock().await;
 
     // Increment click count and fetch the blog
@@ -69,16 +72,33 @@ async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>)
             // Fetch the content from the file
             let file_path = format!("files/{}", blog.path);
             let file_content = fs::read_to_string(&file_path)
-                .unwrap_or_else(|_| "Error reading blog content".to_string());
+                .unwrap_or_else(|_| "Sorry, the blog content is not available".to_string());
+            // let background_image_url = "https://picsum.photos/1920/1080"; // Placeholder image
+            let background_image_url = if blog.background_image.is_some() {
+                blog.background_image.unwrap()
+            } else {
+                "https://picsum.photos/1920/1080".to_string()
+            };
 
-            Html(format!(
-                "<h1>{}</h1><p>{}</p><p>{}</p><p><em>Created at: {}</em></p>",
-                blog.title,
-                blog.description,
-                file_content,
-                blog.created_at,
-            ))
+            let parsed_content = parser::markdown_to_html(
+                &file_content,
+                &background_image_url,
+                &blog.title,
+                &blog.author,
+                &blog.created_at,
+            );
+
+            // print parsed content into a file
+
+            // Serve the parsed content as-is
+            Response::builder()
+                .header("Content-Type", "text/html; charset=utf-8")
+                .body(parsed_content.into())
+                .unwrap()
         }
-        None => Html("<h1>Blog not found</h1>".to_string()),
+        None => Response::builder()
+            .header("Content-Type", "text/html; charset=utf-8")
+            .body("<h1>Blog not found</h1>".to_string().into())
+            .unwrap(),
     }
 }

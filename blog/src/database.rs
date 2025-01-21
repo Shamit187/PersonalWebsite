@@ -11,6 +11,7 @@ pub struct Blog {
     pub click_count: i32,
     pub created_at: String,
     pub updated_at: String,
+    pub background_image: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -45,7 +46,8 @@ impl Database {
                 created_at: row.get(4)?,
                 path: String::new(),      
                 click_count: row.get(5)?,           
-                updated_at: String::new() 
+                updated_at: String::new(),
+                background_image: None,
             })
         })?;
     
@@ -55,7 +57,7 @@ impl Database {
     // Fetch a single blog by slug
     pub fn fetch_blog_by_slug(&self, slug: &str) -> Result<Option<Blog>> {
         let mut stmt = self.connection.prepare(
-            "SELECT slug, path, title, author, description, audio, click_count, created_at, updated_at
+            "SELECT slug, path, title, author, description, audio, click_count, created_at, updated_at, background_image
              FROM files WHERE slug = ?1;"
         )?;
         stmt.query_row([slug], |row| {
@@ -69,6 +71,7 @@ impl Database {
                 click_count: row.get(6)?,
                 created_at: row.get(7)?,
                 updated_at: row.get(8)?,
+                background_image: row.get(9)?,
             })
         })
         .optional()
