@@ -1,19 +1,13 @@
 use axum::{
-    body::Body,
-    http::StatusCode,
-    extract::State,
-    extract::Path,
-    response::Html,
-    response::Response,
-    routing::get,
-    Router,
+    body::Body, extract::Path, extract::State, http::StatusCode, response::Html,
+    response::Response, routing::get, Router,
 };
+use std::fs;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use std::fs;
 
 mod database;
-use database::{Database, Blog};
+use database::{Blog, Database};
 
 mod parser;
 
@@ -66,7 +60,8 @@ async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>)
     let db = state.db.lock().await;
 
     // Increment click count and fetch the blog
-    db.increment_click_count(&slug).expect("Failed to increment click count");
+    db.increment_click_count(&slug)
+        .expect("Failed to increment click count");
     let blog = db.fetch_blog_by_slug(&slug).expect("Failed to fetch blog");
 
     match blog {
@@ -119,6 +114,10 @@ async fn get_list(
         .fetch_blogs_in_range(start, end)
         .expect("Failed to fetch blogs");
 
+    let total_rows = db
+        .count_total_rows()
+        .expect("Failed to fetch total rows") - 1;
+
     // Build the HTML string
     let html_content = blogs
         .into_iter()
@@ -144,8 +143,40 @@ async fn get_list(
         })
         .collect::<Vec<_>>()
         .join("\n");
+    let previous_start = if start - 9 < 0 { 0 } else { start - 9 };
+    let previous_end = previous_start + 9;
+    let next_end = if end + 9 > total_rows {total_rows } else {end + 9};
+    let next_start = next_end - 9;
+    let previous_disabled = if start == 0 { "disabled" } else { "" };
+    let next_disabled = if end == total_rows { "disabled" } else { "" };
 
-    Html(html_content)
+    Html(format!(
+        r##"
+        <div class="blog-list flex-grow flex flex-col gap-4" id="blogList">
+            {}
+            <div class="foot">
+                <button class="foot-button" id="previousButton" 
+                    hx-get="/get-list/{}/{}" 
+                    hx-target="#blogList" 
+                    hx-trigger="click" 
+                    hx-swap="outerHTML"
+                    {}>
+                    Previous
+                </button>
+                <div class="foot-info" id="footInfo">Showing: {} - {}</div>
+                <button class="foot-button" id="nextButton" 
+                    hx-get="/get-list/{}/{}" 
+                    hx-target="#blogList" 
+                    hx-trigger="click"
+                    hx-swap="outerHTML"
+                    {}>
+                    Next
+                </button>
+            </div>
+        </div>
+        "##,
+        html_content, previous_start, previous_end, previous_disabled, start, end, next_start, next_end, next_disabled
+    ))
 }
 
 // async fn favicon() -> Result<Response<Body>, (StatusCode, &'static str)> {

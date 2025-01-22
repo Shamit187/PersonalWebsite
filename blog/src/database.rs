@@ -203,4 +203,10 @@ impl Database {
 
         Ok(blogs_map.into_values().collect())
     }
+
+    pub fn count_total_rows(&self) -> Result<i64> {
+        let mut stmt = self.connection.prepare("SELECT COUNT(*) FROM files;")?;
+        let count: i64 = stmt.query_row([], |row| row.get(0)).unwrap();
+        Ok(count)
+    }
 }

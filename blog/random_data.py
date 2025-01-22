@@ -19,6 +19,16 @@ def random_date(days_back):
 conn = sqlite3.connect(DATABASE)
 cursor = conn.cursor()
 
+# Populate the tags table
+tags = ["Technology", "Health", "Education", "Lifestyle"]
+cursor.executemany("""
+    INSERT OR IGNORE INTO tags (name)
+    VALUES (?)
+""", [(tag,) for tag in tags])
+
+print(f"Inserted {len(tags)} tags into the tags table.")
+
+# Generate random entries for the files table
 print(f"Generating {NUM_ENTRIES} entries...")
 
 for i in range(1, NUM_ENTRIES + 1):
@@ -47,7 +57,7 @@ for i in range(1, NUM_ENTRIES + 1):
 
     # Assign random tags
     for _ in range(tags_count):
-        tag_id = random.randint(1, 4)  # Assuming 4 tags in the tags table
+        tag_id = random.randint(1, len(tags))  # Adjusted to match the number of tags in the table
         cursor.execute("""
             INSERT OR IGNORE INTO file_tags (file_slug, tag_id)
             VALUES (?, ?)
