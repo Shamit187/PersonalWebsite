@@ -1,0 +1,30 @@
+<!-- Background -->
+<div class="background"></div>
+
+<!-- Content -->
+
+<div id="hero" class="h-[95vh] w-screen p-56 flex flex-row justify-start items-end">
+    <div id="hero-title" class="flex flex-col justify-center items-start w-56">
+        <h1 id="main-title" class="text-9xl font-bold text-white tracking-wide">Blog</h1>
+        <p class="text-base text-white pl-2 text-wrap">I hate myself</p>
+        <p class="text-base text-white pl-2 text-wrap">But I love writing about it...</p>
+    </div>
+</div>
+<!-- Typical Main Content, A filter in right side, and a list of posts in left side -->
+<div class="main-content w-screen px-56 py-10 flex flex-col">
+    <!-- <h2 id="sticky-title" class="text-4xl font-bold mb-10">Blog</h2> -->
+    <div class="flex flex-row justify-between gap-10">
+        <!-- Filter -->
+        <div class="filter w-1/4 backdrop-blur-md bg-white/5 p-4 rounded-md shadow border-solid border-white/40">
+            <h3 class="text-xl font-bold mb-4">Filter</h3>
+            <div>I'll apply filters later</div>
+            <div>Do not have that many content just yet</div>
+        </div>
+        <!-- List of blogs -->
+        <div class="blog-list flex-grow flex flex-col gap-4" hx-get="/get-list/0/9" hx-trigger="load"
+            hx-swap="outerHTML" id="blogList">
+        </div>
+
+    </div>
+</div>
+</div>

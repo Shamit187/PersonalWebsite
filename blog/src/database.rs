@@ -1,4 +1,4 @@
-use rusqlite::{params, Connection, OptionalExtension, Result};
+use rusqlite::{ Connection, OptionalExtension, Result};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -9,7 +9,7 @@ pub struct Blog {
     pub author: String,
     pub description: String,
     pub _audio: Option<String>,
-    pub click_count: i32,
+    pub _click_count: i32,
     pub created_at: String,
     pub _updated_at: String,
     pub background_image: Option<String>,
@@ -18,7 +18,7 @@ pub struct Blog {
 
 #[derive(Debug, Clone)]
 pub struct Tag {
-    pub id: u32,
+    pub _id: u32,
     pub name: String,
 }
 
@@ -34,7 +34,7 @@ impl Database {
     }
 
     // Fetch all blogs
-    pub fn fetch_all_blogs(&self) -> Result<Vec<Blog>> {
+    pub fn _fetch_all_blogs(&self) -> Result<Vec<Blog>> {
         let mut stmt = self.connection.prepare(
             "SELECT f.slug, f.path, f.title, f.author, f.description, f.audio, 
                     f.click_count, f.created_at, f.updated_at, f.background_image, 
@@ -65,7 +65,7 @@ impl Database {
                         author: row.get("author")?,
                         description: row.get("description")?,
                         _audio: row.get("audio")?,
-                        click_count: row.get("click_count")?,
+                        _click_count: row.get("click_count")?,
                         created_at: row.get("created_at")?,
                         _updated_at: row.get("updated_at")?,
                         background_image: row.get("background_image")?,
@@ -80,7 +80,7 @@ impl Database {
                     .get_mut(&slug)
                     .unwrap()
                     .tags
-                    .push(Tag { id, name });
+                    .push(Tag { _id: id, name });
             }
         }
 
@@ -105,7 +105,7 @@ impl Database {
                     author: row.get(3)?,
                     description: row.get(4)?,
                     _audio: row.get(5)?,
-                    click_count: row.get(6)?,
+                    _click_count: row.get(6)?,
                     created_at: row.get(7)?,
                     _updated_at: row.get(8)?,
                     background_image: row.get(9)?,
@@ -127,7 +127,7 @@ impl Database {
             let tags = tag_stmt
                 .query_map([slug], |row| {
                     Ok(Tag {
-                        id: row.get(0)?,
+                        _id: row.get(0)?,
                         name: row.get(1)?,
                     })
                 })?
@@ -183,7 +183,7 @@ impl Database {
                         author: row.get("author")?,
                         description: row.get("description")?,
                         _audio: row.get("audio")?,
-                        click_count: row.get("click_count")?,
+                        _click_count: row.get("click_count")?,
                         created_at: row.get("created_at")?,
                         _updated_at: row.get("updated_at")?,
                         background_image: row.get("background_image")?,
@@ -197,7 +197,7 @@ impl Database {
                     .get_mut(&slug)
                     .unwrap()
                     .tags
-                    .push(Tag { id, name });
+                    .push(Tag { _id: id, name });
             }
         }
 

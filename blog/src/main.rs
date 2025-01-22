@@ -5,9 +5,10 @@ use axum::{
 use std::fs;
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use std::time::Instant;
 
 mod database;
-use database::{Blog, Database};
+use database::Database;
 
 mod parser;
 
@@ -28,7 +29,7 @@ async fn main() {
         .route("/", get(root))
         .route("/blog/{slug}", get(blog_post))
         .route("/get-list/{start}/{end}", get(get_list))
-        // .route("/favicon.ico", get(favicon))
+        .route("/favicon.ico", get(favicon))
         .with_state(Arc::new(app_state));
 
     // Start the server
@@ -36,46 +37,80 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
+// Helper function to create a bad response
+fn bad_response() -> Response {
+    Response::builder()
+        .status(500)
+        .header("Content-Type", "text/plain; charset=utf-8")
+        .body("Internal Server Error".into())
+        .unwrap()
+}
+
 // Handler for the root route
 async fn root() -> Response {
-    // Path to the HTML file
-    let file_path = "pages/index.html";
+    println!("/ API called");
+    let html_head = match fs::read_to_string("pages/index.head") {
+        Ok(content) => content,
+        Err(_) => return bad_response(),
+    };
 
-    // Read the file
-    match fs::read_to_string(file_path) {
-        Ok(content) => Response::builder()
-            .header("Content-Type", "text/html; charset=utf-8")
-            .body(content.into())
-            .unwrap(),
-        Err(_) => Response::builder()
-            .status(500)
-            .header("Content-Type", "text/plain; charset=utf-8")
-            .body("Failed to load the index.html file.".into())
-            .unwrap(),
-    }
+    let html_body = match fs::read_to_string("pages/index.body") {
+        Ok(content) => content,
+        Err(_) => return bad_response(),
+    };
+
+    let css = match fs::read_to_string("pages/index.css") {
+        Ok(content) => content,
+        Err(_) => return bad_response(),
+    };
+
+    let html_content = format!(
+        r#"
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            {}
+            <style>{}</style>
+        </head>
+        <body>
+            {}
+        </body>
+        </html>
+        "#,
+        html_head, css, html_body
+    );
+
+    Response::builder()
+        .header("Content-Type", "text/html; charset=utf-8")
+        .body(html_content.into())
+        .unwrap()
 }
 
 // Handler for a specific blog post
 async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>) -> Response {
+    let start_time = Instant::now();
     let db = state.db.lock().await;
 
-    // Increment click count and fetch the blog
-    db.increment_click_count(&slug)
-        .expect("Failed to increment click count");
-    let blog = db.fetch_blog_by_slug(&slug).expect("Failed to fetch blog");
+    if let Err(_) = db.increment_click_count(&slug) {
+        return bad_response();
+    }
+    let blog = match db.fetch_blog_by_slug(&slug) {
+        Ok(blog) => blog,
+        Err(_) => return bad_response(),
+    };
 
-    match blog {
+    let response = match blog {
         Some(blog) => {
             // Fetch the content from the file
             let file_path = format!("files/{}", blog.path);
-            let file_content = fs::read_to_string(&file_path)
-                .unwrap_or_else(|_| "Sorry, the blog content is not available".to_string());
-            // let background_image_url = "https://picsum.photos/1920/1080"; // Placeholder image
-            let background_image_url = if blog.background_image.is_some() {
-                blog.background_image.unwrap()
-            } else {
-                "https://picsum.photos/1920/1080".to_string()
+            let file_content = match fs::read_to_string(&file_path) {
+                Ok(content) => content,
+                Err(_) => return bad_response(),
             };
+
+            let background_image_url = blog.background_image.unwrap_or_else(|| {
+                "https://picsum.photos/1920/1080".to_string()
+            });
 
             let parsed_content = parser::markdown_to_html(
                 &file_content,
@@ -85,19 +120,23 @@ async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>)
                 &blog.created_at,
             );
 
-            // print parsed content into a file
-
-            // Serve the parsed content as-is
-            Response::builder()
-                .header("Content-Type", "text/html; charset=utf-8")
-                .body(parsed_content.into())
-                .unwrap()
+            if let Some(parsed_content) = parsed_content {
+                Response::builder()
+                    .header("Content-Type", "text/html; charset=utf-8")
+                    .body(parsed_content.into())
+                    .unwrap()
+            } else {
+                bad_response()
+            }
         }
         None => Response::builder()
             .header("Content-Type", "text/html; charset=utf-8")
             .body("<h1>Blog not found</h1>".to_string().into())
             .unwrap(),
-    }
+    };
+    let duration = start_time.elapsed();
+    println!("/blog/{slug} API called: Time elapsed in blog_post: {}ms", duration.as_secs_f64() * 1000.0);
+    response
 }
 
 // Handler for the /get-list/{start}/{end} API
@@ -105,7 +144,7 @@ async fn get_list(
     Path((start, end)): Path<(i64, i64)>,
     State(state): State<Arc<AppState>>,
 ) -> Html<String> {
-    println!("start: {}, end: {}", start, end);
+    println!("/get-list/{start}/{end} API called");
 
     let db = state.db.lock().await;
 
@@ -160,7 +199,8 @@ async fn get_list(
                     hx-target="#blogList" 
                     hx-trigger="click" 
                     hx-swap="outerHTML"
-                    {}>
+                    {}
+                >
                     Previous
                 </button>
                 <div class="foot-info" id="footInfo">Showing: {} - {}</div>
@@ -169,7 +209,8 @@ async fn get_list(
                     hx-target="#blogList" 
                     hx-trigger="click"
                     hx-swap="outerHTML"
-                    {}>
+                    {}
+                >
                     Next
                 </button>
             </div>
@@ -179,14 +220,15 @@ async fn get_list(
     ))
 }
 
-// async fn favicon() -> Result<Response<Body>, (StatusCode, &'static str)> {
-//     let file_path = "pages/favicon.ico"; // Path to the favicon
+async fn favicon() -> Result<Response<Body>, (StatusCode, &'static str)> {
+    println!("/favicon.ico API called");
+    let file_path = "pages/favicon.ico"; // Path to the favicon
 
-//     match fs::read(file_path) {
-//         Ok(contents) => Ok(Response::builder()
-//             .header("Content-Type", "image/x-icon")
-//             .body(Body::from(contents))
-//             .unwrap()),
-//         Err(_) => Err((StatusCode::NOT_FOUND, "Favicon not found")),
-//     }
-// }
+    match fs::read(file_path) {
+        Ok(contents) => Ok(Response::builder()
+            .header("Content-Type", "image/x-icon")
+            .body(Body::from(contents))
+            .unwrap()),
+        Err(_) => Err((StatusCode::NOT_FOUND, "Favicon not found")),
+    }
+}
