@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Tailwind Project</title>
+  <link rel='stylesheet' href='dist/style.css'>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap">
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/bash.min.js"
+    integrity="sha512-nQ9BQEzuov+Ry6EIH8ve7VKKdOG91Ix3SAQcFmOiBR5qG8sJONrph1InWTJOGjfP5QkSTSy4VnkEsPMoFYRsUQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/c.min.js"
+    integrity="sha512-HheXunBWZVAec/gPxpzgxGZmajdCQWVBxMba1VaUAADs8g7GmlB8k8346ihWgGtyrjfr9Qjmk7+IFHrjj2OaJQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/cpp.min.js"
+    integrity="sha512-i2YY1iYKnV+oOmxBA9Jd4YFwM8E07ySVuVEEhPWQ/gSVHVvzWhHbvK1REz1KuZL4amejLDjslRvMIo8ORiTu6Q=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/csharp.min.js"
+    integrity="sha512-E508cDPDWSFwXbo0jUpAxAuDtuKyg3qzALy/oyrTBcP07/Xz79ajxXl4LzoNAZw+hr4NAnjPhAdwN0qtmJ9ukg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/css.min.js"
+    integrity="sha512-fQhadp2Av4sRhTYd9TEggQW4NrosThwDUXIMLin90uepvmCZG0mRTdPVtHujrXD22qMTtdQlrAEdvWocezI8ow=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/haskell.min.js"
+    integrity="sha512-wV1s4ylNcflirsC0Ug9dDahOxjj/JSQheHv0loB9Q3bv7G0TYLduOWWmhz2MjMKRO6+LS8AgeuhBB8Gny4pdFQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/java.min.js"
+    integrity="sha512-DTx6faal3nhEB55v+yn8UnXCxaxCdMR6gBZ0zzXhGD2qvtgf6xbW5iA7G4CUn78R9PoPzTelR7xIQwGNUJAv2w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/javascript.min.js"
+    integrity="sha512-yfJUrNGEC39mHLjZ37CZG69Ij9Vnan7NHxXVuuBxafgfk4F+n7j/NhNWtyhKGTYEgWfgUqzPYMZJZY1HIsPCbQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/json.min.js"
+    integrity="sha512-f2/ljYb/tG4fTHu6672tyNdoyhTIpt4N1bGrBE8ZjwIgrjDCd+rljLpWCZ2Vym9PBWQy2Tl9O22Pp2rMOMvH4g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/latex.min.js"
+    integrity="sha512-4h3uWtv1iEA4sgWqZ1is70GnmESsRzCRaGTyeajS/8Zq0CGWVCCRTrpEw5mJ57vF9LIfwNwCMNeV6IjGytrhrA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/makefile.min.js"
+    integrity="sha512-lLnMPGLNcEgvwt6f291Bp+WqF3HRxv+8q1t6PA/XTwZH/D1XLB2tUayRAjfAp6AAUrrieJnXQCUtGZtcMhP6ag=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/markdown.min.js"
+    integrity="sha512-j4HfSOGvYNRQiq8wvftDi9oVmhSqJuh2dALD+Btn53looHt+e1aaNX9gcQsnUAi42694fFhmmU4fx8nzs6VN7Q=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/nginx.min.js"
+    integrity="sha512-kvYzE8uXJNOxB79FbRApSqfjbo7ngD2ulfLeAS5yrDpVL2vpgsw8FhM/N77/xstE183jysYBacXAOrZtgQWW/A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/python.min.js"
+    integrity="sha512-/uCTceIDOniHf+VUKbCnP/x6GQSRrm4GwUtQYMgKa9yIZPGzlR04flSsD+2or7bPn44VY9inIHI4cwNCcZmJDw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/rust.min.js"
+    integrity="sha512-uSwY2GKSvbwBXA67+Hk3onpjVKHLMc734wgIclGBo3XUVnaksT0Mp3qRjmzVMAsAUrk8ZxbSxGsIQ8I0XkY3Gg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/sql.min.js"
+    integrity="sha512-RzK8J6sL3xE7eyppcm7hjCq6fpW1kDlnKPO5jX+Z++/ChYXqsq5AoFq0z78g3jf/1DV5wMBZukqIyb+0xPkCVw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/verilog.min.js"
+    integrity="sha512-bFy4K4cSBOA7MNrKZThhLeok+EAwwR+R3J0bFVKczK0h9MAVEPVSYMWoIGDs3yOJ2WxLJUEeJ1dkpM8vdasxqw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/vhdl.min.js"
+    integrity="sha512-sVEWS+8DbPq026tWk3RggYqiRKU9pwpelEdUgNnJ7ow3Wb99nn5E7Nr8EcjPFjwAK6z/o/ebqs56Z6/0d5Iw7Q=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/x86asm.min.js"
+    integrity="sha512-gLk8o5O27h5BbPkdiO0RMiAvU0d8U+S/ft7X5Yh2rpg9XdQ0wBgkjSQ7qz4R6sO9A7AzeLQJ5pKpXGs4jks05A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>hljs.highlightAll();</script>
+  <style>
+    :root {
+      --background-image: url('https://picsum.photos/1920/1080');
+    }
+
+    body {
+      background-image: var(--background-image);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+    }
+  </style>
+  <script>
+    function getContrastiveColorWithMode(imageUrl, callback) {
+      const img = new Image();
+      img.crossOrigin = "Anonymous"; // Allow cross-origin images
+      img.src = imageUrl;
+
+      img.onload = function () {
+        // Create a canvas to process the image
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+
+        // Extract image data
+        const imageData = ctx.getImageData(0, 0, img.width, img.height);
+        const data = imageData.data;
+
+        let totalR = 0, totalG = 0, totalB = 0;
+
+        // Loop through pixels to calculate the total RGB values
+        for (let i = 0; i < data.length; i += 4) {
+          totalR += data[i];
+          totalG += data[i + 1];
+          totalB += data[i + 2];
+        }
+
+        // Calculate average RGB
+        const pixelCount = data.length / 4;
+        const avgR = totalR / pixelCount;
+        const avgG = totalG / pixelCount;
+        const avgB = totalB / pixelCount;
+
+        // Calculate average luminance of the image
+        const calculateLuminance = (r, g, b) => {
+          const normalize = (val) => (val / 255 <= 0.03928 ? val / 255 / 12.92 : ((val / 255 + 0.055) / 1.055) ** 2.4);
+          return 0.2126 * normalize(r) + 0.7152 * normalize(g) + 0.0722 * normalize(b);
+        };
+        const backgroundLuminance = calculateLuminance(avgR, avgG, avgB);
+
+        // Decide light or dark mode based on luminance
+        const isDarkMode = backgroundLuminance > 0.5; // Luminance > 0.5 -> light background
+
+        // Adjust contrastive color in HSL
+        const rgbToHsl = (r, g, b) => {
+          r /= 255;
+          g /= 255;
+          b /= 255;
+
+          const max = Math.max(r, g, b);
+          const min = Math.min(r, g, b);
+          const delta = max - min;
+
+          let h = 0, s = 0, l = (max + min) / 2;
+
+          if (delta !== 0) {
+            s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+
+            switch (max) {
+              case r: h = ((g - b) / delta + (g < b ? 6 : 0)) * 60; break;
+              case g: h = ((b - r) / delta + 2) * 60; break;
+              case b: h = ((r - g) / delta + 4) * 60; break;
+            }
+          }
+
+          return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
+        };
+
+        const hsl = rgbToHsl(avgR, avgG, avgB);
+
+        // Rotate hue for contrasting color
+        const contrastHue = (hsl.h + 180) % 360;
+        const contrastSaturation = Math.min(hsl.s + 30, 100);
+        const contrastLightness = isDarkMode ? Math.min(hsl.l + 50, 85) : Math.max(hsl.l - 50, 15);
+
+        const hslToRgb = (h, s, l) => {
+          s /= 100;
+          l /= 100;
+
+          const c = (1 - Math.abs(2 * l - 1)) * s;
+          const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+          const m = l - c / 2;
+
+          let r = 0, g = 0, b = 0;
+
+          if (h >= 0 && h < 60) { r = c; g = x; b = 0; }
+          else if (h >= 60 && h < 120) { r = x; g = c; b = 0; }
+          else if (h >= 120 && h < 180) { r = 0; g = c; b = x; }
+          else if (h >= 180 && h < 240) { r = 0; g = x; b = c; }
+          else if (h >= 240 && h < 300) { r = x; g = 0; b = c; }
+          else if (h >= 300 && h < 360) { r = c; g = 0; b = x; }
+
+          r = Math.round((r + m) * 255);
+          g = Math.round((g + m) * 255);
+          b = Math.round((b + m) * 255);
+
+          return { r, g, b };
+        };
+
+        const contrastColorRgb = hslToRgb(contrastHue, contrastSaturation, contrastLightness);
+
+        const contrastiveColor = `rgb(${contrastColorRgb.r}, ${contrastColorRgb.g}, ${contrastColorRgb.b})`;
+        callback(contrastiveColor, isDarkMode);
+      };
+    }
+
+    function applyContrastiveTextColor(imageUrl) {
+      getContrastiveColorWithMode(imageUrl, (contrastiveColor, isDarkMode) => {
+        const root = document.documentElement;
+
+        // Apply the chosen text color and mode
+        root.style.setProperty("--color-text-light", contrastiveColor);
+        root.style.setProperty("--color-text-dark", contrastiveColor);
+        root.style.setProperty("--theme-mode", isDarkMode ? "light" : "dark");
+
+        if (isDarkMode) {
+          document.body.classList.add("light-mode");
+          document.body.classList.remove("dark-mode");
+        } else {
+          document.body.classList.add("dark-mode");
+          document.body.classList.remove("light-mode");
+        }
+      });
+    }
+
+    // Call the function with your image URL
+    applyContrastiveTextColor("https://picsum.photos/1920/1080");
+  </script>
+
+</head>
+
+<body>
+  <div class='glass'>
+    <div class='content'>
+
+      <h1>Global Warming: A Looming Crisis</h1>
+      <div class="flex flex-col">
+        <h2>Author: Shamit Fatin</h2>
+        <h2>Created In: 12/2/2024</h2>
+      </div>
+      <h3>Global Warming: A Looming Crisis</h3>
+      <h4>A Brief Overview</h4>
+      <hr class="custom-hr">
+      <div class="figure" id="img-global-warming-glacier">
+        <div class="figure-caption">
+          <span class="material-symbols-outlined">format_quote</span>
+          <div class="figure-caption-text">A glacier melting due to rising global temperatures.</div>
+        </div>
+        <img src="https://picsum.photos/seed/picsum/150/50" alt="Melting Glacier" width="800px" aspect-ratio="auto">
+      </div>
+      <hr class="custom-hr">
+      <p>Welcome to the <span class="bold">Rust Documentation</span>! This guide will teach you everything about <span
+          class="monospace">state-based parsing</span>.
+        Let's start with a simple concept: the <span class="bold">bold</span> keyword is used for <span
+          class="italic">emphasis</span>. Sometimes, you'll want to
+        highlight specific terms, like <mark class="green">important</mark> or <span class="color-blue">crucial
+          concepts</span>.
+        When explaining code, you might want to use <span class="explainable"
+          title="It indicates explainable terms">this keyword</span>.
+        If you're dealing with math, you could write inline equations like <span class="monospace">E=mc^2</span>.
+        However, don't forget to
+        include <span class="strikethrough">deprecated terms</span> or <span class="underline">legacy keywords</span> in
+        your notes. For annotations, you might prefer
+        <sub>subscripts</sub> or <sup>superscripts</sup> to clarify points.
+      </p>
+      <h5>Advanced Usage</h5>
+      <p>Here are some tips for <span class="reference">experienced users</span>:
+        1. Use structured layouts with <span class="color-teal">clean formatting</span>.
+        2. Avoid excessive use of <mark class="yellow">highlights</mark>, as they can overwhelm readers.
+        3. Inline links like <a href="https://www.rust-lang.org">rust</a> are great for external references.
+      </p>
+      <h5>Footnotes and References</h5>
+      <p>Footnotes[^1] are often handy for citing additional resources. In such cases, you'll want to ensure
+        proper syntax, like <span class="reference">footnotes section</span>. Links like <a
+          href="https://example.com">example</a> can complement these notes.
+      </p>
+      <h5>Summary</h5>
+      <p>In conclusion:
+      </p>
+      <div class="list-container">
+        <div class="list">
+          <div class="list-item">Stay consistent with <span class="bold">styles</span>, <span
+              class="italic">emphasis</span>, and <mark class="orange">highlighting</mark>.</div>
+          <div class="list-item">Avoid excessive <span class="monospace">monospace</span> text for regular descriptions.
+          </div>
+          <div class="list-item">Include <span class="explainable"
+              title="Break down complex ideas into simple terms">clear explanations</span>.</div>
+          <div class="list-item">Don't forget to handle corner cases, such as <span class="bold">nested *italic*
+              styles</span>, or <span class="bold">bold~~and strikethrough~~</span> combinations.</div>
+        </div>
+      </div>
+      <sup id="fnref:1"><a href="#fn:1" rel="footnote">Example footnote explaining additional details.</a></sup>
+      <hr class="custom-hr">
+      <div id="carousel-id" class="image-carousel"><img src="https://picsum.photos/100/100" class="carousel-image">
+        <img src="https://picsum.photos/100/100" class="carousel-image">
+        <img src="https://picsum.photos/100/100" class="carousel-image">
+      </div>
+      <hr class="custom-hr">
+      <div class="list-container">
+        <div class="list">
+          <div class="list-item">Causes of Global Warming:</div>
+          <div class="list">
+            <div class="list-item">Greenhouse gas emissions</div>
+            <div class="list">
+              <div class="list-item">Carbon dioxide (CO<sub>2</sub>)</div>
+              <div class="list-item">Methane (CH<sub>4</sub>)</div>
+              <div class="list-item">Nitrous oxide (N<sub>2</sub>O)</div>
+            </div>
+            <div class="list-item">Deforestation</div>
+            <div class="list-item">Industrial activities</div>
+          </div>
+          <div class="list-item">Impacts of Global Warming:</div>
+          <div class="list">
+            <div class="list-item">Rising sea levels</div>
+            <div class="list-item">Increased frequency of extreme weather events</div>
+            <div class="list-item">Loss of biodiversity</div>
+          </div>
+        </div>
+      </div>
+      <div id="table-global-warming-effects" class="table-container">
+        <table class="table-class">
+          <thead class="thead-class">
+            <tr>
+              <th scope="col" class="th-class">Region</th>
+              <th scope="col" class="th-class">Key Impact</th>
+              <th scope="col" class="th-class">Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-class">Arctic</td>
+              <td class="td-class">Melting ice caps</td>
+              <td class="td-class">Habitat loss for polar bears</td>
+            </tr>
+            <tr>
+              <td class="td-class">Coastal Areas</td>
+              <td class="td-class">Rising sea levels</td>
+              <td class="td-class">Flooding in low-lying countries</td>
+            </tr>
+            <tr>
+              <td class="td-class">Forests</td>
+              <td class="td-class">Increased wildfires</td>
+              <td class="td-class">Destruction of Amazon rainforest</td>
+            </tr>
+            <tr>
+              <td class="td-class">Oceans</td>
+              <td class="td-class">Coral bleaching</td>
+              <td class="td-class">Great Barrier Reef deterioration</td>
+            </tr>
+            <tr>
+              <td class="td-class">Urban Areas</td>
+              <td class="td-class">Heatwaves and poor air quality</td>
+              <td class="td-class">Record temperatures in cities</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-title">Effects of Global Warming</div>
+      </div>
+      <div class="callout-container">
+        <div class="callout-logo-note"><span class="material-symbols-outlined">note_stack</span></div>
+        <div class="vertical-line"></div>
+        <div class="callout-content">Global warming is not a distant threat; its effects are already being felt across
+          the globe. Rising sea levels, more intense hurricanes, prolonged droughts, and unprecedented heatwaves are
+          just some of the symptoms of a warming planet. Immediate action is necessary to mitigate its impacts and
+          ensure a livable future for coming generations. Reducing greenhouse gas emissions like carbon dioxide
+          (CO<sub>2</sub>), methane (CH<sub>4</sub>), and nitrous oxide (N<sub>2</sub>O) is crucial to slow down the
+          effects of climate change. Everyone has a role to play-from policymakers and industries to individuals
+          adopting sustainable practices.
+        </div>
+      </div>
+      <div class="callout-container">
+        <div class="callout-logo-warning"><span class="material-symbols-outlined">priority_high</span></div>
+        <div class="vertical-line"></div>
+        <div class="callout-content">Without significant changes to current policies, global temperatures could rise by
+          over 2Â°C by 2050, leading to catastrophic consequences. This could result in the loss of critical ecosystems,
+          such as coral reefs, which support marine biodiversity. Agricultural productivity could decline, threatening
+          global food security, while extreme weather events may displace millions from their homes. Governments must
+          commit to ambitious climate goals, invest in renewable energy sources, and phase out reliance on fossil fuels
+          to avoid crossing this dangerous threshold. Time is running out, and collective global effort is our only
+          hope.
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <h4>The Science Behind Global Warming</h4>
+      <h5>The Greenhouse Effect</h5>
+      <h6>How It Works</h6>
+      <hr class="custom-hr">
+      <div class="figure" id="img-greenhouse-effect-diagram">
+        <div class="figure-caption">
+          <span class="material-symbols-outlined">format_quote</span>
+          <div class="figure-caption-text">A diagram showing how greenhouse gases trap heat in the Earth's atmosphere.
+          </div>
+        </div>
+        <img src="https://picsum.photos/seed/shamit/150/50" alt="Greenhouse Effect Diagram" width="800px"
+          aspect-ratio="auto">
+      </div>
+      <div class="list-container">
+        <div class="list">
+          <div class="list-item">The natural greenhouse effect:</div>
+          <div class="list">
+            <div class="list-item">Keeps Earth's surface warm enough to sustain life.</div>
+          </div>
+          <div class="list-item">Enhanced greenhouse effect:</div>
+          <div class="list">
+            <div class="list-item">Human activities increase greenhouse gas concentrations, trapping more heat.</div>
+            <div class="list-item">Major contributors:</div>
+            <div class="list">
+              <div class="list-item">Burning fossil fuels (coal, oil, natural gas)</div>
+              <div class="list-item">Industrial processes</div>
+              <div class="list-item">Agricultural practices</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <details class="collapse-container">
+        <summary class="collapse-summary">Click to expand</summary><span>The Role of Carbon Dioxide (CO2)
+          CO2 is the most significant greenhouse gas emitted by human activities. It is primarily released through:
+          - Burning fossil fuels for energy.
+          - Deforestation, which reduces CO2 absorption by trees.
+          - Cement production and other industrial processes.
+        </span>
+      </details>
+      <div class="todo-item"><input type="checkbox" disabled> Urgent need to reduce emissions and transition to
+        renewable energy sources.</div>
+      <div class="todo-item"><input type="checkbox" checked disabled> Progress made in renewable energy adoption, such
+        as solar and wind power.</div>
+      <hr class="custom-hr">
+      <div id="math-global-warming-impact" class="block-math">\[
+        \Delta T = \frac{\alpha \cdot (C - C_0)}{1 + \beta \cdot (C - C_0)}
+
+        \]</div>
+      <hr class="custom-hr">
+
+      <canvas id="canvas-greenhouse-data" class="canvas-container" width="500px" height="500px"></canvas>
+      <script>
+        const canvas = document.getElementById("canvas-greenhouse-data");
+        const ctx = canvas.getContext("2d");
+        function drawClimateImpact(ctx) {
+          ctx.fillStyle = "red";
+          ctx.fillRect(10, 20, 100, 50); // Representing rising global temperatures
+          ctx.font = "14px Arial";
+          ctx.fillText("Rising Temperatures", 15, 60);
+        }
+        drawClimateImpact(ctx);
+
+      </script>
+
+      <hr class="custom-hr">
+      <pre><code class="language-python"># Python code to calculate carbon footprint
+def calculate_carbon_footprint(emissions):
+    """Calculate total carbon footprint based on emissions in tons."""
+    factors = {'electricity': 0.92, 'transport': 0.75, 'waste': 0.35}
+    total_footprint = sum(emissions[activity] * factors.get(activity, 0) for activity in emissions)
+    return total_footprint
+
+emissions = {'electricity': 100, 'transport': 50, 'waste': 10}
+print(f"Total Carbon Footprint: {calculate_carbon_footprint(emissions)} tons")
+</code></pre>
+      <hr class="custom-hr">
+      <div class="audio-stamp">10:30</div>
+      <hr class="custom-hr">
+      <h4>The Impacts of Global Warming</h4>
+      <h5>Environmental Impacts</h5>
+      <h6>Changes in Weather Patterns</h6>
+      <hr class="custom-hr">
+      <div class="figure" id="img-hurricane-impact">
+        <div class="figure-caption">
+          <span class="material-symbols-outlined">format_quote</span>
+          <div class="figure-caption-text">Increased frequency and intensity of hurricanes due to global warming.</div>
+        </div>
+        <img src="https://picsum.photos/seed/hallo/150/50" alt="Hurricane Image" width="800px" aspect-ratio="auto">
+      </div>
+      <hr class="custom-hr">
+      <div class="list-container">
+        <div class="list">
+          <div class="list-item">Extreme weather events:</div>
+          <div class="list">
+            <div class="list-item">Stronger hurricanes and typhoons.</div>
+            <div class="list-item">More frequent and intense heatwaves.</div>
+            <div class="list-item">Unpredictable weather patterns.</div>
+          </div>
+          <div class="list-item">Melting ice and rising sea levels:</div>
+          <div class="list">
+            <div class="list-item">Coastal flooding threatening millions of people.</div>
+            <div class="list-item">Loss of ice habitats for polar species.</div>
+          </div>
+          <div class="list-item">Oceanic changes:</div>
+          <div class="list">
+            <div class="list-item">Coral bleaching due to higher water temperatures.</div>
+            <div class="list-item">Ocean acidification affecting marine life.</div>
+          </div>
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <div id="table-weather-impacts" class="table-container">
+        <table class="table-class">
+          <thead class="thead-class">
+            <tr>
+              <th scope="col" class="th-class">Region</th>
+              <th scope="col" class="th-class">Impact</th>
+              <th scope="col" class="th-class">Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-class">North America</td>
+              <td class="td-class">Wildfires</td>
+              <td class="td-class"> droughts</td>
+            </tr>
+            <tr>
+              <td class="td-class">Europe</td>
+              <td class="td-class">Severe heatwaves</td>
+              <td class="td-class">2023 heat records in Southern Europe</td>
+            </tr>
+            <tr>
+              <td class="td-class">Asia</td>
+              <td class="td-class">Typhoons</td>
+              <td class="td-class"> monsoon variability</td>
+            </tr>
+            <tr>
+              <td class="td-class">Pacific Islands</td>
+              <td class="td-class">Rising sea levels</td>
+              <td class="td-class">Kiribati at risk of submersion</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-title">Regional Weather Impacts</div>
+      </div>
+      <hr class="custom-hr">
+      <div class="callout-container">
+        <div class="callout-logo-note"><span class="material-symbols-outlined">note_stack</span></div>
+        <div class="vertical-line"></div>
+        <div class="callout-content">The impacts of global warming are not uniform. Developing countries often bear the
+          brunt of climate change despite contributing the least to global emissions.
+        </div>
+      </div>
+      <div class="callout-container">
+        <div class="callout-logo-warning"><span class="material-symbols-outlined">priority_high</span></div>
+        <div class="vertical-line"></div>
+        <div class="callout-content">If global temperatures rise beyond 1.5Â°C above pre-industrial levels, many
+          ecosystems may reach irreversible tipping points.
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <h5>Economic Impacts</h5>
+      <h6>Costs of Inaction</h6>
+      <hr class="custom-hr">
+      <details class="collapse-container">
+        <summary class="collapse-summary">Click to expand</summary><span>Economic Costs of Climate Change
+          - Damage to infrastructure due to natural disasters.
+          - Loss of agricultural productivity affecting food supply.
+          - Healthcare costs from increased heat-related illnesses.
+        </span>
+      </details>
+      <hr class="custom-hr">
+      <div class="todo-item"><input type="checkbox" disabled> Assess the economic feasibility of renewable energy
+        projects.</div>
+      <div class="todo-item"><input type="checkbox" checked disabled> Increase investment in climate-resilient
+        infrastructure.</div>
+      <hr class="custom-hr">
+      <div id="math-economic-loss" class="block-math">\[
+        L = P \cdot (1 + \alpha T)
+
+        \]</div>
+      <hr class="custom-hr">
+      <div id="quote-climate-economics" class="quote">"The economy is a wholly owned subsidiary of the environment, not
+        the other way around."
+        - Herman Daly
+      </div>
+      <hr class="custom-hr">
+      <h5>Social Impacts</h5>
+      <h6>Inequality and Migration</h6>
+      <hr class="custom-hr">
+      <div class="figure" id="img-climate-refugees">
+        <div class="figure-caption">
+          <span class="material-symbols-outlined">format_quote</span>
+          <div class="figure-caption-text">Communities displaced by rising sea levels and extreme weather.</div>
+        </div>
+        <img src="https://picsum.photos/seed/piomaacsum/150/50" alt="Climate Refugees" width="250px"
+          aspect-ratio="auto">
+      </div>
+      <hr class="custom-hr">
+      <div class="list-container">
+        <div class="list">
+          <div class="list-item">Increased inequality:</div>
+          <div class="list">
+            <div class="list-item">Vulnerable communities suffer the most from climate impacts.</div>
+            <div class="list-item">Limited resources for adaptation in low-income regions.</div>
+          </div>
+          <div class="list-item">Climate migration:</div>
+          <div class="list">
+            <div class="list-item">Millions displaced due to rising sea levels and natural disasters.</div>
+            <div class="list-item">Urban centers under pressure from migration.</div>
+          </div>
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <h4>Solutions to Combat Global Warming</h4>
+      <h5>Renewable Energy Sources</h5>
+      <h6>Transitioning to a Sustainable Future</h6>
+      <hr class="custom-hr">
+      <div class="figure" id="img-renewable-energy-solar">
+        <div class="figure-caption">
+          <span class="material-symbols-outlined">format_quote</span>
+          <div class="figure-caption-text">Solar panels harnessing energy from the sun, a sustainable power source.
+          </div>
+        </div>
+        <img src="https://picsum.photos/seed/hehe/150/50" alt="Solar Panels" width="800px" aspect-ratio="auto">
+      </div>
+      <hr class="custom-hr">
+      <div class="list-container">
+        <div class="list">
+          <div class="list-item">Key renewable energy sources:</div>
+          <div class="list">
+            <div class="list-item">Solar power:</div>
+            <div class="list">
+              <div class="list-item">Abundant and clean energy from sunlight.</div>
+              <div class="list-item">Rapidly decreasing costs of photovoltaic cells.</div>
+            </div>
+            <div class="list-item">Wind power:</div>
+            <div class="list">
+              <div class="list-item">Onshore and offshore wind farms.</div>
+              <div class="list-item">Major contributor to renewable energy grids.</div>
+            </div>
+            <div class="list-item">Hydropower:</div>
+            <div class="list">
+              <div class="list-item">Energy from rivers and dams.</div>
+              <div class="list-item">Concerns over ecological impacts of damming.</div>
+            </div>
+            <div class="list-item">Geothermal energy:</div>
+            <div class="list">
+              <div class="list-item">Harnessing heat from beneath the Earth's surface.</div>
+              <div class="list-item">Limited to geologically active regions.</div>
+            </div>
+          </div>
+          <div class="list-item">Innovations in energy storage:</div>
+          <div class="list">
+            <div class="list-item">Lithium-ion batteries for energy storage.</div>
+            <div class="list-item">Emerging technologies like hydrogen fuel cells.</div>
+          </div>
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <div class="callout-container">
+        <div class="callout-logo-note"><span class="material-symbols-outlined">note_stack</span></div>
+        <div class="vertical-line"></div>
+        <div class="callout-content">Adopting renewable energy is not just about reducing emissions. It also fosters
+          energy independence and creates new economic opportunities.
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <h5>Energy Efficiency and Conservation</h5>
+      <h6>Reducing Energy Demand</h6>
+      <hr class="custom-hr">
+      <details class="collapse-container">
+        <summary class="collapse-summary">Click to expand</summary><span>Energy Conservation Tips
+          - Use energy-efficient appliances and lighting.
+          - Insulate homes to reduce heating and cooling demands.
+          - Promote public transportation and carpooling.
+          - Encourage telecommuting to minimize commuting emissions.
+        </span>
+      </details>
+      <hr class="custom-hr">
+      <div class="todo-item"><input type="checkbox" disabled> Research energy-efficient solutions for industries.</div>
+      <div class="todo-item"><input type="checkbox" checked disabled> Implement community-based programs for energy
+        conservation.</div>
+      <hr class="custom-hr">
+      <h5>Policy and Advocacy</h5>
+      <h6>Global Cooperation on Climate Action</h6>
+      <hr class="custom-hr">
+      <div id="table-climate-policies" class="table-container">
+        <table class="table-class">
+          <thead class="thead-class">
+            <tr>
+              <th scope="col" class="th-class">Agreement</th>
+              <th scope="col" class="th-class">Key Features</th>
+              <th scope="col" class="th-class">Signatory Countries</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-class">Paris Agreement (2015)</td>
+              <td class="td-class">"Limit warming to 1.5°C</td>
+              <td class="td-class"> nationally determined contributions (NDCs)."</td>
+            </tr>
+            <tr>
+              <td class="td-class">Kyoto Protocol (1997)</td>
+              <td class="td-class">"Binding emission reduction targets for developed countries."</td>
+              <td class="td-class">192</td>
+            </tr>
+            <tr>
+              <td class="td-class">Montreal Protocol (1987)</td>
+              <td class="td-class">"Phase-out of ozone-depleting substances."</td>
+              <td class="td-class">Universal participation</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-title">Major International Climate Agreements</div>
+      </div>
+      <hr class="custom-hr">
+      <div class="callout-container">
+        <div class="callout-logo-warning"><span class="material-symbols-outlined">priority_high</span></div>
+        <div class="vertical-line"></div>
+        <div class="callout-content">Without stricter policies, global emissions are projected to exceed safe limits by
+          2030, resulting in severe climate consequences.
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <div id="math-emission-reduction" class="block-math">\[
+        E_{future} = E_{current} - \beta \cdot I
+
+        \]</div>
+      <hr class="custom-hr">
+      <h5>Individual Actions</h5>
+      <h6>What Can You Do?</h6>
+      <hr class="custom-hr">
+      <div class="figure" id="img-individual-actions-tree-planting">
+        <div class="figure-caption">
+          <span class="material-symbols-outlined">format_quote</span>
+          <div class="figure-caption-text">Planting trees to absorb carbon dioxide and combat deforestation.</div>
+        </div>
+        <img src="https://picsum.photos/seed/ugugug/150/50" alt="Planting Trees" width="250px" aspect-ratio="auto">
+      </div>
+      <hr class="custom-hr">
+      <div class="list-container">
+        <div class="list">
+          <div class="list-item">Reduce your carbon footprint:</div>
+          <div class="list">
+            <div class="list-item">Drive less, walk or bike more.</div>
+            <div class="list-item">Support sustainable products and companies.</div>
+          </div>
+          <div class="list-item">Advocate for change:</div>
+          <div class="list">
+            <div class="list-item">Support policies and leaders who prioritize climate action.</div>
+            <div class="list-item">Spread awareness in your community.</div>
+          </div>
+          <div class="list-item">Engage in carbon offset programs:</div>
+          <div class="list">
+            <div class="list-item">Invest in tree-planting initiatives.</div>
+            <div class="list-item">Support renewable energy projects in developing countries.</div>
+          </div>
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <h4>The Future Outlook</h4>
+      <h5>Challenges Ahead</h5>
+      <h6>Overcoming Barriers to Climate Action</h6>
+      <hr class="custom-hr">
+      <div class="figure" id="img-challenges-climate-action">
+        <div class="figure-caption">
+          <span class="material-symbols-outlined">format_quote</span>
+          <div class="figure-caption-text">Industrial emissions remain one of the biggest challenges in combating global
+            warming.</div>
+        </div>
+        <img src="https://picsum.photos/seed/ualtual/150/50" alt="Smoke Stacks" width="800px" aspect-ratio="auto">
+      </div>
+      <hr class="custom-hr">
+      <div class="list-container">
+        <div class="list">
+          <div class="list-item">Political and economic barriers:</div>
+          <div class="list">
+            <div class="list-item">Resistance from industries reliant on fossil fuels.</div>
+            <div class="list-item">Lack of funding for renewable energy projects in developing nations.</div>
+          </div>
+          <div class="list-item">Scientific challenges:</div>
+          <div class="list">
+            <div class="list-item">Advancing carbon capture and storage (CCS) technologies.</div>
+            <div class="list-item">Scaling up renewable energy infrastructure globally.</div>
+          </div>
+          <div class="list-item">Social obstacles:</div>
+          <div class="list">
+            <div class="list-item">Public skepticism about climate change.</div>
+            <div class="list-item">Difficulty in changing consumer behavior.</div>
+          </div>
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <div class="callout-container">
+        <div class="callout-logo-note"><span class="material-symbols-outlined">note_stack</span></div>
+        <div class="vertical-line"></div>
+        <div class="callout-content">While these challenges are significant, advancements in technology, policy, and
+          public awareness provide a path forward.
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <h5>Opportunities for Innovation</h5>
+      <h6>Driving a Green Revolution</h6>
+      <hr class="custom-hr">
+      <details class="collapse-container">
+        <summary class="collapse-summary">Click to expand</summary><span>Emerging Technologies
+          - Carbon capture and storage (CCS) systems.
+          - Artificial photosynthesis for energy production.
+          - Advanced battery technologies for long-term energy storage.
+          - Smart grids for efficient energy distribution.
+        </span>
+      </details>
+      <hr class="custom-hr">
+      <div class="todo-item"><input type="checkbox" disabled> Invest in research for next-generation climate solutions.
+      </div>
+      <div class="todo-item"><input type="checkbox" checked disabled> Expand global collaborations on technological
+        innovation.</div>
+      <hr class="custom-hr">
+      <div id="math-climate-future" class="block-math">\[
+        P = \gamma \cdot R - \delta \cdot D
+
+        \]</div>
+      <hr class="custom-hr">
+      <div id="quote-climate-future" class="quote">"Humanity has the ability to make development sustainable-to ensure
+        that it meets the needs of the present without compromising the ability of future generations to meet their own
+        needs."
+        - Brundtland Commission, 1987
+      </div>
+      <hr class="custom-hr">
+      <h5>A Call to Action</h5>
+      <h6>The Role of Every Individual</h6>
+      <hr class="custom-hr">
+      <div class="figure" id="img-call-to-action-global-unity">
+        <div class="figure-caption">
+          <span class="material-symbols-outlined">format_quote</span>
+          <div class="figure-caption-text">The fight against global warming requires global unity and collective effort.
+          </div>
+        </div>
+        <img src="https://picsum.photos/seed/Unity/150/50" alt="Global Unity" width="800px" aspect-ratio="auto">
+      </div>
+      <hr class="custom-hr">
+      <div class="list-container">
+        <div class="list">
+          <div class="list-item">What can governments do?</div>
+          <div class="list">
+            <div class="list-item">Implement stricter emissions regulations.</div>
+            <div class="list-item">Provide subsidies for renewable energy adoption.</div>
+            <div class="list-item">Penalize high-emission industries.</div>
+          </div>
+          <div class="list-item">What can industries do?</div>
+          <div class="list">
+            <div class="list-item">Transition to sustainable practices.</div>
+            <div class="list-item">Invest in green technologies.</div>
+            <div class="list-item">Reduce waste and improve energy efficiency.</div>
+          </div>
+          <div class="list-item">What can individuals do?</div>
+          <div class="list">
+            <div class="list-item">Stay informed and spread awareness.</div>
+            <div class="list-item">Practice sustainable living.</div>
+            <div class="list-item">Participate in climate advocacy groups.</div>
+          </div>
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <div class="callout-container">
+        <div class="callout-logo-warning"><span class="material-symbols-outlined">priority_high</span></div>
+        <div class="vertical-line"></div>
+        <div class="callout-content">Time is running out. The actions we take today will determine the future of our
+          planet.
+        </div>
+      </div>
+      <hr class="custom-hr">
+      <h4>Conclusion</h4>
+      <h5>Hope for a Sustainable Future</h5>
+      <hr class="custom-hr">
+      <p>Despite the challenges, there is hope. Innovation, collaboration, and determination can lead us to a
+        sustainable future. By taking action at every level-individual, industrial, and governmental-we can combat
+        global warming and protect our planet for future generations.
+      </p>
+      <hr class="custom-hr">
+      <div id="faq-global-warming" class="faq">- **Q: What is the most effective way to combat global warming?**
+        **A:** Transitioning to renewable energy and reducing emissions are the most effective measures.
+        - **Q: Can small actions by individuals make a difference?**
+        **A:** Yes, collective small actions can lead to significant change over time.
+        - **Q: How can I stay informed about climate change?**
+        **A:** Follow reputable organizations and publications dedicated to climate science and sustainability.
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>

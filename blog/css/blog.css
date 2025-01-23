@@ -1,0 +1,359 @@
+/* Import Tailwind's base, components, and utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Define CSS variables for gradients */
+:root {
+    --color-bg-light: #ffffff;
+    --color-bg-dark: #1e293b;
+    --color-text-light: #03142c;
+    --color-text-dark: #f8fafc;
+    --color-primary: #6366f1;
+    --color-secondary: #eab308;
+}
+
+/* Dark mode variables */
+html.dark {
+    --color-bg-light: var(--color-bg-dark);
+    --color-text-light: var(--color-text-dark);
+    --gradient-light: var(--gradient-dark);
+}
+
+/* Styles for the body */
+@layer base {
+    body {
+        @apply h-screen w-screen overflow-hidden;
+        /* If I wanted gradient */
+        /* background-color: var(--color-bg-light);
+        background-image: var(--gradient-light);
+        background-blend-mode: overlay, normal, normal, normal, normal, normal, normal, normal;
+        background-size: cover; */
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-text-light);
+
+        /* Font */
+        font-family: "Noto Sans", serif;
+        font-weight: 400;
+        font-size: smaller;
+    }
+
+    code,
+    pre {
+        font-family: "JetBrains Mono", serif;
+    }
+
+    h1 {
+        @apply text-start text-2xl font-semibold my-2;
+        color: var(--color-text-light);
+    }
+
+    h2 {
+        @apply text-xs font-semibold;
+        color: var(--color-text-light);
+        font-family: "JetBrains Mono";
+    }
+
+    h3 {
+        @apply text-sm font-semibold;
+        color: var(--color-text-light);
+    }
+
+    h4,h5,h6 {
+        @apply text-sm font-extralight;
+        color: var(--color-text-light);
+    }
+
+    hr {
+        @apply w-full h-1 my-4 mx-auto rounded;
+    
+        /* Dynamic background and border color */
+        @apply bg-black dark:bg-white;
+    
+        /* Dynamic box-shadow */
+        box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+        @apply dark:shadow-[0_0_1px_rgba(255,255,255,0.2)];
+    
+        /* Dynamic border color */
+        @apply border-black dark:border-white;
+    
+        /* Opacity */
+        opacity: 0.2;
+    }
+
+    p {
+        @apply text-sm text-justify;
+        color: var(--color-text-light);
+    }
+
+    img {
+        @apply rounded-md shadow-lg;
+    }
+
+    mark.red {
+        @apply bg-red-500 text-white dark:bg-red-300 dark:text-black px-2;
+    }
+    
+    mark.green {
+        @apply bg-green-500 text-white dark:bg-green-300 dark:text-black px-2;
+    }
+    
+    mark.blue {
+        @apply bg-blue-500 text-white dark:bg-blue-300 dark:text-black px-2;
+    }
+    
+    mark.yellow {
+        @apply bg-yellow-500 text-black dark:bg-yellow-300 dark:text-black px-2;
+    }
+    
+    mark.purple {
+        @apply bg-purple-500 text-white dark:bg-purple-300 dark:text-black px-2;
+    }
+    
+    mark.pink {
+        @apply bg-pink-500 text-black dark:bg-pink-300 dark:text-black px-2;
+    }
+
+}
+
+/* Glass effect container */
+@layer components {
+    .jetbrains-mono-bold {
+        font-family: "JetBrains Mono", serif;
+        font-optical-sizing: auto;
+        font-weight: 700;
+        /* Bold */
+        font-style: normal;
+        /* Non-italic */
+    }
+
+    .jetbrains-mono-light {
+        font-family: "JetBrains Mono", serif;
+        font-optical-sizing: auto;
+        font-weight: 300;
+        /* Light */
+        font-style: normal;
+    }
+
+    .noto-sans-regular {
+        font-family: "Noto Sans", serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        /* Regular */
+        font-style: normal;
+        font-variation-settings: "wdth" 100;
+        /* Variable width */
+    }
+
+    .noto-sans-bold-italic {
+        font-family: "Noto Sans", serif;
+        font-optical-sizing: auto;
+        font-weight: 700;
+        /* Bold */
+        font-style: italic;
+        font-variation-settings: "wdth" 100;
+    }
+
+    .material-symbols-outlined {
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
+    }
+
+    .glass {
+        @apply backdrop-blur-lg shadow-lg px-40 py-6 flex items-center justify-center;
+        width: 75vw;
+        height: 95vh;
+    
+        /* Dynamic background using Tailwind's dark mode */
+        @apply dark:bg-white/40 bg-white/40;
+    
+        border: 2px solid rgba(255, 255, 255, 0.25); /* White-colored border with some transparency */
+        border-radius: 15px; /* Rounded corners */
+        overflow: hidden; /* Prevent glass container from scrolling */
+    }    
+    
+    .content {
+        @apply rounded-lg px-20 py-[15rem] flex flex-col gap-4;
+        width: 100%; /* Take up full width of .glass */
+        height: 100%; /* Take up full height of .glass */
+        overflow-y: auto; /* Make the content scrollable */
+        scrollbar-width: none; /* Hide scrollbar in Firefox */
+    }
+    
+    .content::-webkit-scrollbar {
+        display: none; /* Hide scrollbar in WebKit-based browsers */
+    }
+
+    .figure {
+        @apply flex flex-row gap-10 items-end justify-end;
+    }
+
+    .figure-caption {
+        @apply flex flex-col items-end justify-end;
+    }
+
+    .figure-caption-text{
+        @apply w-48 text-end italic font-light;
+    }
+
+    .list{
+        @apply pl-8 flex flex-col;
+    }
+
+    .list-item{
+    }
+
+    .list-container{
+    }
+
+    .table-container{
+        @apply flex flex-col gap-4;
+    }
+
+    .table-class {
+        @apply w-full text-sm text-left rtl:text-right rounded-lg border-separate bg-white/20 dark:bg-black/20;
+        border-spacing: 0;
+    }
+    
+    .thead-class {
+        @apply text-xs uppercase bg-white/20 dark:bg-black/20 rounded-lg;
+    }
+    
+    
+    .th-class {
+        @apply px-6 py-3; /* Border between columns */
+    }
+    
+    .th-class:first-child {
+        border-left: 0; /* No border on the left for the first column */
+        border-top-left-radius: 0.5rem; /* Round top-left corner */
+    }
+    
+    .th-class:last-child {
+        border-right: 0; /* No border on the right for the last column */
+        border-top-right-radius: 0.5rem; /* Round top-right corner */
+    }
+    
+    .td-class {
+        @apply px-6 py-4 whitespace-nowrap; /* Border between columns */
+    }
+    
+    .td-class:first-child {
+        border-left: 0; /* No border on the left for the first column */
+    }
+    
+    .td-class:last-child {
+        border-right: 0; /* No border on the right for the last column */
+    }
+    
+    .table-title {
+        @apply text-center text-xs italic font-light;
+    }
+
+    .callout-container {
+        @apply flex flex-row-reverse gap-2 items-end p-4 rounded-lg;
+    
+        /* Dynamic background for light and dark mode */
+        @apply bg-white/20 dark:bg-black/20;
+    }
+
+    .callout-content {
+        @apply w-10/12 font-bold text-xs text-right;
+        opacity: 0.8;
+    }
+
+    .vertical-line {
+        @apply border-l h-full; /* Adds a vertical line */
+        border-width: 1px; /* Line thickness */
+        border-color: rgba(0, 0, 0, 0.2); /* Line color */
+    }
+
+    .collapse-container {
+        @apply flex flex-col p-4 rounded-lg transition-all duration-300 ease-in-out;
+    
+        /* Dynamic background for light and dark mode */
+        @apply bg-white/20 dark:bg-black/20;
+    }
+
+    .collapse-summary {
+        cursor: pointer;
+        /* transition: background-color 0.3s ease;  */
+    }
+
+    .collapse-container[open] .collapse-summary {
+        @apply font-bold mb-2;
+    }
+
+    .collapse-container span {
+        @apply text-xs font-light;
+    }
+
+    .todo-item {
+        @apply flex flex-row gap-2 items-center;
+    }
+
+    .canvas-container {
+        @apply bg-white rounded-lg shadow-lg;
+    }
+
+    .image-carousel {
+        @apply w-full flex flex-row gap-4 items-center justify-center;
+    }
+
+    .image-carousel img {
+        @apply rounded-lg shadow-lg w-1/2;
+    }
+
+    /* Inline Design */
+    .bold{
+        @apply font-extrabold;
+    }
+
+    .monospace{
+        @apply font-mono;
+    }
+
+    .explainable{
+        @apply text-xs font-light;
+    }
+
+    .strikethrough{
+        @apply line-through;
+    }
+
+    .reference {
+        @apply text-xs font-light text-blue-500;
+    }
+    /* highlights */
+
+    /* colors */
+    .color-red {
+        @apply text-red-800 dark:text-red-200;
+    }
+    
+    .color-green {
+        @apply text-green-800 dark:text-green-200;
+    }
+    
+    .color-blue {
+        @apply text-blue-800 dark:text-blue-200;
+    }
+    
+    .color-yellow {
+        @apply text-yellow-800 dark:text-yellow-200;
+    }
+    
+    .color-purple {
+        @apply text-purple-800 dark:text-purple-200;
+    }
+    
+    .color-pink {
+        @apply text-pink-800 dark:text-pink-200;
+    }
+}
