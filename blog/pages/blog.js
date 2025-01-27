@@ -1,47 +1,32 @@
 function getContrastiveColorWithMode(imageUrl, callback) {
     const img = new Image();
-    img.crossOrigin = "Anonymous"; // Allow cross-origin images
+    img.crossOrigin = "Anonymous";
     img.src = imageUrl;
 
     img.onload = function () {
-        // Create a canvas to process the image
         const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-
         const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, img.width, img.height);
 
-        // Extract image data
-        const imageData = ctx.getImageData(0, 0, img.width, img.height);
+        // Define dimensions for cropping the middle section of the image
+        const cropWidth = img.width * 0.6; // Middle 60% width
+        const cropHeight = img.height; // Full height
+        const cropX = img.width * 0.2; // Start after 20%
+        const cropY = 0;
+
+        // Set canvas size to cropped region
+        canvas.width = cropWidth;
+        canvas.height = cropHeight;
+
+        // Draw cropped image region onto the canvas
+        ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+
+        const imageData = ctx.getImageData(0, 0, cropWidth, cropHeight);
         const data = imageData.data;
 
-        let totalR = 0, totalG = 0, totalB = 0;
+        let totalHue = 0, totalLightness = 0;
+        let pixelCount = 0;
 
-        // Loop through pixels to calculate the total RGB values
-        for (let i = 0; i < data.length; i += 4) {
-            totalR += data[i];
-            totalG += data[i + 1];
-            totalB += data[i + 2];
-        }
-
-        // Calculate average RGB
-        const pixelCount = data.length / 4;
-        const avgR = totalR / pixelCount;
-        const avgG = totalG / pixelCount;
-        const avgB = totalB / pixelCount;
-
-        // Calculate average luminance of the image
-        const calculateLuminance = (r, g, b) => {
-            const normalize = (val) => (val / 255 <= 0.03928 ? val / 255 / 12.92 : ((val / 255 + 0.055) / 1.055) ** 2.4);
-            return 0.2126 * normalize(r) + 0.7152 * normalize(g) + 0.0722 * normalize(b);
-        };
-        const backgroundLuminance = calculateLuminance(avgR, avgG, avgB);
-
-        // Decide light or dark mode based on luminance
-        const isDarkMode = backgroundLuminance > 0.5; // Luminance > 0.5 -> light background
-
-        // Adjust contrastive color in HSL
+        // Convert RGB to HSL and calculate total hue and lightness
         const rgbToHsl = (r, g, b) => {
             r /= 255;
             g /= 255;
@@ -51,27 +36,52 @@ function getContrastiveColorWithMode(imageUrl, callback) {
             const min = Math.min(r, g, b);
             const delta = max - min;
 
-            let h = 0, s = 0, l = (max + min) / 2;
+            let h = 0, l = (max + min) / 2;
+            let s = 0;
 
             if (delta !== 0) {
                 s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min);
-
-                switch (max) {
-                    case r: h = ((g - b) / delta + (g < b ? 6 : 0)) * 60; break;
-                    case g: h = ((b - r) / delta + 2) * 60; break;
-                    case b: h = ((r - g) / delta + 4) * 60; break;
-                }
+                if (max === r) h = (g - b) / delta + (g < b ? 6 : 0);
+                else if (max === g) h = (b - r) / delta + 2;
+                else if (max === b) h = (r - g) / delta + 4;
+                h *= 60;
             }
+
+            l = Math.min(l + 0.4, 1); // Increase lightness by 20% because of the container background
 
             return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
         };
 
-        const hsl = rgbToHsl(avgR, avgG, avgB);
+        // Process pixels and calculate HSL averages
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
 
-        // Rotate hue for contrasting color
-        const contrastHue = (hsl.h + 180) % 360;
-        const contrastSaturation = Math.min(hsl.s + 30, 100);
-        const contrastLightness = isDarkMode ? Math.min(hsl.l + 50, 85) : Math.max(hsl.l - 50, 15);
+            const { h, l } = rgbToHsl(r, g, b);
+            totalHue += h;
+            totalLightness += l;
+            pixelCount++;
+        }
+
+        // Calculate average hue and lightness
+        const avgHue = totalHue / pixelCount;
+        const avgLightness = totalLightness / pixelCount;
+
+        // Calculate text lightness based on the average lightness
+        let textLightness;
+        if (avgLightness < 50) {
+            textLightness = Math.min(avgLightness + 80, 100); // Ensure max lightness is 100
+        } else {
+            textLightness = Math.max(avgLightness - 80, 0); // Ensure min lightness is 0
+        }
+
+        // Set text color HSL
+        const textColorHSL = {
+            h: (avgHue < 180)? avgHue + 180 : avgHue - 180, // Invert hue
+            s: 50, // Fixed saturation
+            l: Math.round(textLightness) // Adjusted lightness
+        };
 
         const hslToRgb = (h, s, l) => {
             s /= 100;
@@ -97,10 +107,15 @@ function getContrastiveColorWithMode(imageUrl, callback) {
             return { r, g, b };
         };
 
-        const contrastColorRgb = hslToRgb(contrastHue, contrastSaturation, contrastLightness);
+        // Convert text color HSL to RGB
+        const textColorRgb = hslToRgb(textColorHSL.h, textColorHSL.s, textColorHSL.l);
+        const contrastiveColor = `rgb(${textColorRgb.r}, ${textColorRgb.g}, ${textColorRgb.b})`;
 
-        const contrastiveColor = `rgb(${contrastColorRgb.r}, ${contrastColorRgb.g}, ${contrastColorRgb.b})`;
-        callback(contrastiveColor, isDarkMode);
+        callback(contrastiveColor);
+    };
+
+    img.onerror = function () {
+        console.error("Failed to load the image.");
     };
 }
 
