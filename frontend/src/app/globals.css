@@ -91,7 +91,9 @@ body {
 
 /* Shared btn Button Styles */
 .button-content {
-  @apply px-2 lg:px-8 py-2 bg-black relative text-xs lg:text-base transition duration-200 text-white;
+  @apply px-2 lg:px-8 py-2 relative text-xs lg:text-base transition duration-200;
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 .button-content:hover {

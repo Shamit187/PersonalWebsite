@@ -72,14 +72,15 @@ export default function Home() {
 
   useEffect(() => {
     const contentArray = [
-      { text: "About Me", link: "/#" },
+      { text: "About Me", link: "/fake" },
       { text: "Blog", link: "https://blog.alwaysdumb.com/"},
-      { text: "Art Gallery", link: "/#" },
-      { text: "Game Dev Journal", link: "/#" },
-      { text: "Contact Me", link: "/#" },
-      { text: "Projects", link: "/#" },
-      { text: "Photography", link: "/#" },
-      { text: "Music", link: "/#" },
+      { text: "Art Gallery", link: "/fake" },
+      { text: "Game Dev Journal", link: "/fake" },
+      { text: "Contact Me", link: "/fake" },
+      { text: "Projects", link: "/fake" },
+      { text: "Photography", link: "/fake" },
+      { text: "Music", link: "/fake" },
+      { text: "Research", link: "/fake" },
     ];
     const buttonClasses = [
       "btn-blue",
