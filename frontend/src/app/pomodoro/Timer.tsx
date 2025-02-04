@@ -16,29 +16,8 @@ export default function Timer({ timerValues, timeActivity, setTimeActivity, todo
     const [startTime, setStartTime] = useState<number | null>(null);
     const [elapsedTime, setElapsedTime] = useState(0);
 
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
-        if (timeActivity.active) {
-            if (startTime === null) {
-                setStartTime(Date.now());
-            }
-            timer = setInterval(() => {
-                const now = Date.now();
-                const elapsed = Math.floor((now - (startTime || now)) / 1000);
-                const newTimeLeft = Math.max(timeActivity.duration * 60 - elapsed, 0);
-                setElapsedTime(elapsed);
-                setTimeActivity({ ...timeActivity, timeLeft: newTimeLeft });
-
-                if (newTimeLeft === 0) {
-                    handleSessionEnd();
-                }
-            }, 1000);
-        }
-        return () => clearInterval(timer);
-    }, [timeActivity.active, startTime]);
-
     const handleSessionEnd = () => {
-        let updatedTodos = [...todos];
+        const updatedTodos = [...todos];
     
         if (timeActivity.mode === "focus") {
             // Reduce counter of active task
@@ -79,6 +58,29 @@ export default function Timer({ timerValues, timeActivity, setTimeActivity, todo
         setStartTime(null);
         setElapsedTime(0);
     };
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (timeActivity.active) {
+            if (startTime === null) {
+                setStartTime(Date.now());
+            }
+            timer = setInterval(() => {
+                const now = Date.now();
+                const elapsed = Math.floor((now - (startTime || now)) / 1000);
+                const newTimeLeft = Math.max(timeActivity.duration * 60 - elapsed, 0);
+                setElapsedTime(elapsed);
+                setTimeActivity({ ...timeActivity, timeLeft: newTimeLeft });
+
+                if (newTimeLeft === 0) {
+                    handleSessionEnd();
+                }
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [timeActivity.active, startTime, handleSessionEnd, setTimeActivity]);
+
+    
     
 
     const toggleTimer = () => {

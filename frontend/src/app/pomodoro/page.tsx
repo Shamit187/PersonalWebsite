@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Activity, TimeActivity, TimerValues } from "./types";
 import Timer from "./Timer";
 import Settings from "./Settings";
