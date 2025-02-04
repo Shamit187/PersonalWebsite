@@ -81,6 +81,7 @@ export default function Home() {
       { text: "Photography", link: "/fake" },
       { text: "Music", link: "/fake" },
       { text: "Research", link: "/fake" },
+      { text: "Pomodoro", link: "/pomodoro" },
     ];
     const buttonClasses = [
       "btn-blue",
