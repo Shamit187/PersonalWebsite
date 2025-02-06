@@ -17,6 +17,7 @@ interface Activity {
     tag: string;
     name: string;
     counter: number;
+    id: number;
 }
 
 export type {TimerValues, TimeActivity, Activity};

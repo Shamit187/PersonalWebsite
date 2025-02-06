@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Activity } from "./types";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TodoListProps {
     todos: Activity[];
@@ -18,7 +19,8 @@ export default function TodoList({ todos, setTodos }: TodoListProps) {
         const newTask: Activity = {
             name: taskName,
             tag: taskTag || "General",
-            counter: taskCounter
+            counter: taskCounter,
+            id: taskName.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
         };
         setTodos([...todos, newTask]);
         setTaskName("");
@@ -83,40 +85,47 @@ export default function TodoList({ todos, setTodos }: TodoListProps) {
                 <p className="text-gray-500">No tasks available.</p>
             ) : (
                 <ul className="list-none">
-                    {todos.map((todo, index) => (
-                        <li
-                            key={index}
-                            className={`p-2 rounded ${index==0? "bg-gray-900" : "" } mb-2 flex justify-between items-center`}
-                        >
-                            <div>
-                                <p className="font-semibold">{todo.name}</p>
-                                <p className="text-sm text-gray-400">{todo.tag}</p>
-                                <p className="text-sm">Counter: {todo.counter}</p>
-                            </div>
-                            <div className="flex gap-4">
-                                <button
-                                    onClick={() => moveTaskUp(index)}
-                                    disabled={index === 0}
-                                    className="activity-up"
-                                >
-                                    ↑
-                                </button>
-                                <button
-                                    onClick={() => moveTaskDown(index)}
-                                    disabled={index === todos.length - 1}
-                                    className="activity-up"
-                                >
-                                    ↓
-                                </button>
-                                <button
-                                    onClick={() => deleteTask(index)}
-                                    className="activity-delete"
-                                >
-                                    ✖
-                                </button>
-                            </div>
-                        </li>
-                    ))}
+                    <AnimatePresence>
+                        {todos.map((todo, index) => (
+                            <motion.li
+                                key={todo.id} // Use a unique ID instead of index for better animations
+                                layout
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
+                                transition={{ ease: ["easeIn", "easeOut"] }}
+                                className={`p-2 rounded ${index == 0 ? "bg-gray-900" : ""} mb-2 flex justify-between items-center`}
+                            >
+                                <div>
+                                    <p className="font-semibold">{todo.name}</p>
+                                    <p className="text-sm text-gray-400">{todo.tag}</p>
+                                    <p className="text-sm">Counter: {todo.counter}</p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => moveTaskUp(index)}
+                                        disabled={index === 0}
+                                        className="activity-up"
+                                    >
+                                        ↑
+                                    </button>
+                                    <button
+                                        onClick={() => moveTaskDown(index)}
+                                        disabled={index === todos.length - 1}
+                                        className="activity-up"
+                                    >
+                                        ↓
+                                    </button>
+                                    <button
+                                        onClick={() => deleteTask(index)}
+                                        className="activity-delete"
+                                    >
+                                        ✖
+                                    </button>
+                                </div>
+                            </motion.li>
+                        ))}
+                    </AnimatePresence>
                 </ul>
             )}
         </div>
