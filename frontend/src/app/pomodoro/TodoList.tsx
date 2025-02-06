@@ -93,24 +93,24 @@ export default function TodoList({ todos, setTodos }: TodoListProps) {
                                 <p className="text-sm text-gray-400">{todo.tag}</p>
                                 <p className="text-sm">Counter: {todo.counter}</p>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-4">
                                 <button
                                     onClick={() => moveTaskUp(index)}
                                     disabled={index === 0}
-                                    className="px-2 py-1 bg-blue-500 text-white rounded disabled:bg-gray-500"
+                                    className="activity-up"
                                 >
                                     ↑
                                 </button>
                                 <button
                                     onClick={() => moveTaskDown(index)}
                                     disabled={index === todos.length - 1}
-                                    className="px-2 py-1 bg-blue-500 text-white rounded disabled:bg-gray-500"
+                                    className="activity-up"
                                 >
                                     ↓
                                 </button>
                                 <button
                                     onClick={() => deleteTask(index)}
-                                    className="px-2 py-1 bg-red-500 text-white rounded"
+                                    className="activity-delete"
                                 >
                                     ✖
                                 </button>
