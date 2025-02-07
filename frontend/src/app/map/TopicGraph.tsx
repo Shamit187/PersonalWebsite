@@ -22,8 +22,11 @@ export interface LinkData {
 
 export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
-    const tooltipRef = useRef<HTMLDivElement | null>(null);
     const wrapperRef = useRef<HTMLDivElement | null>(null); // For fullscreen sizing
+
+    const [selectedNode, setSelectedNode] = useState<NodeData | null>(null); // Store hovered node details
+    const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+    const initialTransform = useRef<d3.ZoomTransform | null>(null);
 
     const [dimensions, setDimensions] = useState({
         width: typeof window !== "undefined" ? window.innerWidth : 1920, // Fallback width
@@ -31,7 +34,7 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
     });
 
     useEffect(() => {
-        if (!svgRef.current || !tooltipRef.current || !wrapperRef.current) return;
+        if (!svgRef.current || !wrapperRef.current) return;
 
         const { width, height } = dimensions;
         const color = d3.scaleOrdinal(d3.schemeCategory10);
@@ -45,31 +48,37 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
                 "link",
                 d3
                     .forceLink<NodeData, LinkData>(links)
-                    .id(d => (d as NodeData).id) // Ensure `d.id` is read properly
+                    .id(d => (d as NodeData).id)
                     .distance(100)
             )
             .force("charge", d3.forceManyBody().strength(-300))
             .force("center", d3.forceCenter(dimensions.width / 2, dimensions.height / 2));
 
-
         const svg = d3
             .select(svgRef.current)
             .attr("width", width)
             .attr("height", height)
-            .attr("viewBox", `0 0 ${width} ${height}`) // Makes it responsive
+            .attr("viewBox", `0 0 ${width} ${height}`)
             .attr("preserveAspectRatio", "xMidYMid meet");
 
         svg.selectAll("*").remove(); // Clear previous renders
 
-        // Zoom & Pan
-        const zoom = d3.zoom<SVGSVGElement, unknown>()
-            .scaleExtent([0.5, 4]) // Zoom limits (min 50%, max 400%)
-            .on("zoom", (event) => graphGroup.attr("transform", event.transform));
-
-        svg.call(zoom);
-
-        // Graph container (for zooming)
         const graphGroup = svg.append("g");
+
+        // Add zoom capabilities
+        const zoom = d3.zoom<SVGSVGElement, unknown>()
+            .scaleExtent([0.1, 8])
+            .on("zoom", event => {
+                graphGroup.attr("transform", event.transform);
+            });
+
+            
+        svg.call(zoom);
+        if (!initialTransform.current) {
+            initialTransform.current = d3.zoomIdentity;
+        }
+
+        zoomRef.current = zoom; // Store the zoom instance
 
         // Links
         const link = graphGroup
@@ -98,10 +107,10 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
                     .on("drag", dragged)
                     .on("end", dragended)
             )
-            .on("mouseover", (event, d) => showTooltip(event, d))
-            .on("mouseout", hideTooltip)
+            .on("mouseover", (event, d) => handleNodeHover(d))
+            .on("mouseout", () => setSelectedNode(null))
             .attr("cursor", "pointer");
-        
+
         // Define the text selection
         const text = graphGroup
             .append("g")
@@ -119,23 +128,23 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
 
         function ticked() {
             link
-                .attr("x1", d => ((d.source as NodeData).x !== undefined ? (d.source as NodeData).x! : 0))
-                .attr("y1", d => ((d.source as NodeData).y !== undefined ? (d.source as NodeData).y! : 0))
-                .attr("x2", d => ((d.target as NodeData).x !== undefined ? (d.target as NodeData).x! : 0))
-                .attr("y2", d => ((d.target as NodeData).y !== undefined ? (d.target as NodeData).y! : 0));
-        
+                .attr("x1", d => ((d.source as NodeData).x ?? 0))
+                .attr("y1", d => ((d.source as NodeData).y ?? 0))
+                .attr("x2", d => ((d.target as NodeData).x ?? 0))
+                .attr("y2", d => ((d.target as NodeData).y ?? 0));
+
             node
                 .attr("cx", d => (d.x !== undefined ? d.x : 0))
                 .attr("cy", d => (d.y !== undefined ? d.y : 0));
-        
-            // ✅ Update text positions so they follow the nodes
+
             text
                 .attr("x", d => (d.x !== undefined ? d.x : 0))
                 .attr("y", d => (d.y !== undefined ? d.y : 0))
                 .attr("opacity", 1); // Show text
+
+
         }
-            
-            
+
         function dragstarted(event: d3.D3DragEvent<SVGCircleElement, NodeData, NodeData>) {
             if (!event.active) simulation.alphaTarget(0.3).restart();
             event.subject.fx = event.subject.x;
@@ -153,23 +162,8 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
             event.subject.fy = null;
         }
 
-        function showTooltip(event: React.MouseEvent<SVGCircleElement, MouseEvent>, d: NodeData) {
-            d3.select(tooltipRef.current)
-                .style("left", `${event.pageX + 10}px`)
-                .style("top", `${event.pageY - 20}px`)
-                .style("opacity", 1)
-                .style("z-index", "1")
-                .style("background", "white")
-                .style("padding", "1rem")
-                .style("border-radius", "4px")
-                .style("box-shadow", "0px 0px 10px rgba(0, 0, 0, 0.1)")
-                .style("color", "black")
-                .html(`<strong>${d.id}</strong><br>${d.details}`);
-        }
-
-
-        function hideTooltip() {
-            d3.select(tooltipRef.current).style("opacity", 0);
+        function handleNodeHover(d: NodeData) {
+            setSelectedNode(d);
         }
 
         simulation.on("tick", ticked);
@@ -186,23 +180,37 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
         return () => window.removeEventListener("resize", handleResize);
     }, [nodeList, edgeList, dimensions]);
 
+    // function __resetZoom() {
+    //     if (zoomRef.current && svgRef.current) {
+    //         const svg = d3.select(svgRef.current);
+    //         svg.transition().duration(750).call(
+    //             zoomRef.current.transform,
+    //             d3.zoomIdentity.translate(dimensions.width / 2, dimensions.height / 2).scale(1)
+    //         );
+    //     }
+    // }
+
     return (
-        <div ref={wrapperRef} style={{ width: "100vw", height: "100vh", overflow: "hidden", position: "relative" }}>
-            <svg ref={svgRef}></svg>
-            <div
-                ref={tooltipRef}
-                style={{
-                    position: "absolute",
-                    background: "white",
-                    padding: "8px",
-                    borderRadius: "4px",
-                    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
-                    opacity: 0,
-                    pointerEvents: "none"
-                }}
-            ></div>
+        <div className="w-screen h-screen flex flex-col md:flex-row">
+            <div ref={wrapperRef} className="md:w-3/4 w-full h-3/4 md:h-screen overflow-hidden relative">
+                <svg ref={svgRef}></svg>
+            </div>
+            <div className="md:w-1/4 w-full md:h-screen h-1/4 overflow-auto p-4">
+                {selectedNode ? (
+                    <div>
+                        <div dangerouslySetInnerHTML={{ __html: selectedNode.details }} />
+                    </div>
+                ) : (
+                    <p>Hover over a node to see details</p>
+                )}
+                {/* <button
+                    onClick={resetZoom}
+                    className="mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition"
+                >
+                    Reset View
+                </button> */}
+            </div>
         </div>
     );
+    
 };
-
-
