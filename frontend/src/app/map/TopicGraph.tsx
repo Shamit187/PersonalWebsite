@@ -101,9 +101,9 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
             .on("mouseover", (event, d) => showTooltip(event, d))
             .on("mouseout", hideTooltip)
             .attr("cursor", "pointer");
-
-        // Node Labels
-        graphGroup
+        
+        // Define the text selection
+        const text = graphGroup
             .append("g")
             .selectAll("text")
             .data(nodes)
@@ -114,16 +114,27 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
             .attr("text-anchor", "middle")
             .attr("fill", "#333")
             .attr("font-size", "12px")
+            .attr("opacity", 0) // Hide text initially
             .text(d => d.id);
 
-            function ticked() {
-                link
-                    .attr("x1", d => ((d.source as NodeData).x !== undefined ? (d.source as NodeData).x! : 0))
-                    .attr("y1", d => ((d.source as NodeData).y !== undefined ? (d.source as NodeData).y! : 0))
-                    .attr("x2", d => ((d.target as NodeData).x !== undefined ? (d.target as NodeData).x! : 0))
-                    .attr("y2", d => ((d.target as NodeData).y !== undefined ? (d.target as NodeData).y! : 0));
-                node.attr("cx", d => (d.x !== undefined ? d.x : 0)).attr("cy", d => (d.y !== undefined ? d.y : 0));
-            }
+        function ticked() {
+            link
+                .attr("x1", d => ((d.source as NodeData).x !== undefined ? (d.source as NodeData).x! : 0))
+                .attr("y1", d => ((d.source as NodeData).y !== undefined ? (d.source as NodeData).y! : 0))
+                .attr("x2", d => ((d.target as NodeData).x !== undefined ? (d.target as NodeData).x! : 0))
+                .attr("y2", d => ((d.target as NodeData).y !== undefined ? (d.target as NodeData).y! : 0));
+        
+            node
+                .attr("cx", d => (d.x !== undefined ? d.x : 0))
+                .attr("cy", d => (d.y !== undefined ? d.y : 0));
+        
+            // ✅ Update text positions so they follow the nodes
+            text
+                .attr("x", d => (d.x !== undefined ? d.x : 0))
+                .attr("y", d => (d.y !== undefined ? d.y : 0))
+                .attr("opacity", 1); // Show text
+        }
+            
             
         function dragstarted(event: d3.D3DragEvent<SVGCircleElement, NodeData, NodeData>) {
             if (!event.active) simulation.alphaTarget(0.3).restart();
