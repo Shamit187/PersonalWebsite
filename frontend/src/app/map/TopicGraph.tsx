@@ -195,7 +195,7 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
             <div ref={wrapperRef} className="md:w-3/4 w-full h-2/3 md:h-screen overflow-hidden relative">
                 <svg ref={svgRef}></svg>
             </div>
-            <div className="md:w-1/4 w-full md:h-screen h-1/3 overflow-y-auto p-4 bg-gray-100">
+            <div className="md:w-1/4 w-full md:h-screen h-1/3 overflow-y-auto p-4">
                 {selectedNode ? (
                     <div>
                         <div dangerouslySetInnerHTML={{ __html: selectedNode.details }} />
