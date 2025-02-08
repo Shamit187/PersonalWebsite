@@ -1,5 +1,6 @@
 "use client";
 
+import { MathJax } from "better-react-mathjax";
 import * as d3 from "d3";
 import { useEffect, useRef, useState } from "react";
 
@@ -8,10 +9,15 @@ interface TopicGraphProps {
     edgeList: LinkData[];
 }
 
+export interface SingleDetail {
+    type: "text" | "math" | "title";
+    content: string;
+}
+
 export interface NodeData extends d3.SimulationNodeDatum {
     id: string;
     group: number;
-    details: string;
+    details: SingleDetail[];
 }
 
 export interface LinkData {
@@ -72,7 +78,6 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
                 graphGroup.attr("transform", event.transform);
             });
 
-            
         svg.call(zoom);
         if (!initialTransform.current) {
             initialTransform.current = d3.zoomIdentity;
@@ -108,7 +113,6 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
                     .on("end", dragended)
             )
             .on("mouseover", (event, d) => handleNodeHover(d))
-            .on("mouseout", () => setSelectedNode(null))
             .attr("cursor", "pointer");
 
         // Define the text selection
@@ -180,15 +184,6 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
         return () => window.removeEventListener("resize", handleResize);
     }, [nodeList, edgeList, dimensions]);
 
-    // function __resetZoom() {
-    //     if (zoomRef.current && svgRef.current) {
-    //         const svg = d3.select(svgRef.current);
-    //         svg.transition().duration(750).call(
-    //             zoomRef.current.transform,
-    //             d3.zoomIdentity.translate(dimensions.width / 2, dimensions.height / 2).scale(1)
-    //         );
-    //     }
-    // }
 
     return (
         <div className="w-screen h-screen flex flex-col md:flex-row">
@@ -197,20 +192,31 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
             </div>
             <div className="md:w-1/4 w-full md:h-screen h-1/3 overflow-y-auto p-4">
                 {selectedNode ? (
-                    <div>
-                        <div dangerouslySetInnerHTML={{ __html: selectedNode.details }} />
+                    <div key={selectedNode?.id}>
+                        {selectedNode?.details.map((detail, index) => {
+                            switch (detail.type) {
+                                case "text":
+                                    return <div key={index}>{detail.content}</div>;
+                                case "math":
+                                    return (
+                                        <div key={index}>
+                                            <MathJax>
+                                                {detail.content}
+                                            </MathJax>
+                                        </div>
+                                    );
+                                case "title":
+                                    return <h3 key={index}>{detail.content}</h3>;
+                                default:
+                                    return null;
+                            }
+                        })}
                     </div>
                 ) : (
                     <p>Hover over a node to see details</p>
                 )}
-                {/* <button
-                    onClick={resetZoom}
-                    className="mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition"
-                >
-                    Reset View
-                </button> */}
             </div>
         </div>
     );
-    
+
 };

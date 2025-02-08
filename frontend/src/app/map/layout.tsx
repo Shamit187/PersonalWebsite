@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
 import "./map.css";
+import MathJaxClientLayout from "./MathJaxClientLayout";
 
-export const metadata: Metadata = {
+export const metadata = {
     title: "Topic Map",
     description: "A visual representation of mathematical topics and their relationships.",
 };
@@ -12,6 +12,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <main>{children}</main>
+        <MathJaxClientLayout>
+            {children}
+        </MathJaxClientLayout>
     );
 }
