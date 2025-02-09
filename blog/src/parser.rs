@@ -916,7 +916,7 @@ fn try_parse_token(input: &str, i: usize) -> Option<TokenMatch> {
 
                         return Some(TokenMatch {
                             replacement: format!(
-                                r#"<span class="explainable" title="{}">{}</span>"#,
+                                r#"<span class="tooltip" title="{}">{}</span>"#,
                                 explanation_content.trim(),
                                 text_content.trim()
                             ),

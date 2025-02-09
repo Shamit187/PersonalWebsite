@@ -356,4 +356,8 @@ html.dark {
     .color-pink {
         @apply text-pink-800 dark:text-pink-200;
     }
+
+    .tooltip {
+        @apply relative cursor-pointer inline-block;
+    }
 }
