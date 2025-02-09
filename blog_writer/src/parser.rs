@@ -101,7 +101,10 @@ fn table_to_html(raw_string: &str) -> String {
             html_string.push_str("<thead class=\"thead-class\">\n");
             html_string.push_str("<tr>\n");
             for cell in line.split(',') {
-                html_string.push_str(&format!("<th scope=\"col\" class=\"th-class\">{}</th>\n", cell));
+                html_string.push_str(&format!(
+                    "<th scope=\"col\" class=\"th-class\">{}</th>\n",
+                    cell
+                ));
             }
             html_string.push_str("</tr>\n");
             html_string.push_str("</thead>");
@@ -129,15 +132,17 @@ fn carousel_to_html(raw_string: &str) -> String {
     let mut html_string = String::new();
 
     for url in urls {
-        html_string.push_str(&format!("<img src=\"{}\" class=\"carousel-image\">\n", url.trim()));
+        html_string.push_str(&format!(
+            "<img src=\"{}\" class=\"carousel-image\">\n",
+            url.trim()
+        ));
     }
 
     html_string
 }
 
-
 #[derive(Debug, Clone)]
- enum CalloutKind {
+enum CalloutKind {
     Note,
     Warning,
     Info,
@@ -145,12 +150,12 @@ fn carousel_to_html(raw_string: &str) -> String {
 }
 
 #[derive(Debug)]
- enum ToDoKind {
+enum ToDoKind {
     Task,
     Done,
 }
 
- enum BlockToken {
+enum BlockToken {
     // Single Line tokens
     Header {
         level: usize,
@@ -221,7 +226,7 @@ fn carousel_to_html(raw_string: &str) -> String {
 }
 
 #[derive(PartialEq)]
- enum AccumulatingType {
+enum AccumulatingType {
     Paragraph,
     List,
     Table,
@@ -309,7 +314,7 @@ fn flush_accumulator(
             let id = parts.next().unwrap_or("").to_string();
             let content = parts.next().unwrap_or("").to_string();
             tokens.push(BlockToken::FAQ { id, content });
-        },
+        }
         AccumulatingType::CodeBlock => {
             let mut parts = accumulator.splitn(2, '\n');
             let lang = parts.next().unwrap_or("").to_string();
@@ -320,7 +325,7 @@ fn flush_accumulator(
     accumulator.clear();
 }
 
- fn tokenizer(input: &str) -> Vec<BlockToken> {
+fn tokenizer(input: &str) -> Vec<BlockToken> {
     let mut tokens: Vec<BlockToken> = Vec::new();
 
     let mut accumulator: String = String::new();
@@ -351,23 +356,26 @@ fn flush_accumulator(
                 &mut tokens,
             );
             accumulator_type = AccumulatingType::CodeBlock;
-            let lang = trimmed.chars().skip(3).collect::<String>().trim().to_string().to_lowercase();
+            let lang = trimmed
+                .chars()
+                .skip(3)
+                .collect::<String>()
+                .trim()
+                .to_string()
+                .to_lowercase();
             accumulator.push_str(&lang);
             accumulator.push('\n');
         }
-
         // code block can have anything.... until it ends
         else if accumulator_type == AccumulatingType::CodeBlock {
             accumulator.push_str(line);
             accumulator.push('\n');
             continue;
         }
-
         // If the line is empty, flush the accumulator
         else if trimmed.is_empty() {
             continue;
         }
-
         // if starts with #, it's a header
         else if trimmed.starts_with("#") {
             flush_accumulator(
@@ -384,7 +392,10 @@ fn flush_accumulator(
             // Extract the text, skipping '#' characters and leading whitespace
             let text = trimmed[level..].trim_start();
 
-            tokens.push(BlockToken::Header { level, text: text.to_string() });
+            tokens.push(BlockToken::Header {
+                level,
+                text: text.to_string(),
+            });
         }
         // if starts with @, it's an audio stamp
         else if trimmed.starts_with("@") {
@@ -413,7 +424,7 @@ fn flush_accumulator(
                 &mut tokens,
             );
             accumulator_type = AccumulatingType::Paragraph;
-        
+
             // Extract the part between ![ and ] for the alt text
             let alt = trimmed
                 .split(']')
@@ -423,7 +434,7 @@ fn flush_accumulator(
                 .unwrap_or("")
                 .trim()
                 .to_string();
-        
+
             // Extract the URL and optional width inside parentheses ()
             let mut url = String::new();
             let mut width = String::new();
@@ -433,22 +444,30 @@ fn flush_accumulator(
                 url = parts.next().unwrap_or("").to_string();
                 width = parts.next().unwrap_or("").trim_matches('"').to_string();
             }
-        
+
             // Extract the optional reference and caption
             let mut reference = String::new();
             let mut caption = String::new();
             for part in trimmed.split('{').skip(1) {
                 let cleaned = part.trim_end_matches('}').trim();
                 if cleaned.starts_with("ref:") {
-                    reference = cleaned.strip_prefix("ref:").unwrap_or("").trim().to_string();
+                    reference = cleaned
+                        .strip_prefix("ref:")
+                        .unwrap_or("")
+                        .trim()
+                        .to_string();
                 } else if cleaned.starts_with("cap:") {
-                    caption = cleaned.strip_prefix("cap:").unwrap_or("").trim().to_string();
+                    caption = cleaned
+                        .strip_prefix("cap:")
+                        .unwrap_or("")
+                        .trim()
+                        .to_string();
                 }
             }
             // remove trail } from reference if it exists
             reference = reference.trim_end_matches('}').to_string();
             caption = caption.trim_end_matches('}').to_string();
-        
+
             // Push the parsed image token to tokens
             tokens.push(BlockToken::Image {
                 alt,
@@ -458,7 +477,6 @@ fn flush_accumulator(
                 caption,
             });
         }
-        
         // if starts with [^, it's a footnote
         else if trimmed.starts_with("[^") {
             flush_accumulator(
@@ -468,7 +486,7 @@ fn flush_accumulator(
                 &mut tokens,
             );
             accumulator_type = AccumulatingType::Paragraph;
-        
+
             let mut parts = trimmed.splitn(2, ':');
             let id = parts
                 .next()
@@ -478,9 +496,9 @@ fn flush_accumulator(
                 .collect::<String>()
                 .trim_end_matches(']')
                 .to_string();
-        
+
             let description = parts.next().unwrap().chars().skip(1).collect();
-        
+
             tokens.push(BlockToken::FootNote { id, description });
         }
         // if starts with [ ], it's a task
@@ -523,7 +541,6 @@ fn flush_accumulator(
             accumulator_type = AccumulatingType::Paragraph;
             tokens.push(BlockToken::HorizontalLine);
         }
-
         // if starts with :::list, it's a list
         else if trimmed.starts_with(":::list") {
             flush_accumulator(
@@ -767,7 +784,6 @@ fn flush_accumulator(
     tokens
 }
 
-
 #[derive(Debug)]
 struct TokenMatch {
     replacement: String, // The HTML replacement
@@ -783,32 +799,27 @@ fn try_parse_token(input: &str, i: usize) -> Option<TokenMatch> {
             replacement: remaining.chars().skip(1).take(1).collect(),
             length: 2,
         });
-    }
-    else if remaining.starts_with("\\*") {
+    } else if remaining.starts_with("\\*") {
         return Some(TokenMatch {
             replacement: "*".to_string(),
             length: 2,
         });
-    }
-    else if remaining.starts_with("\\`") {
+    } else if remaining.starts_with("\\`") {
         return Some(TokenMatch {
             replacement: "`".to_string(),
             length: 2,
         });
-    }
-    else if remaining.starts_with("\\[") {
+    } else if remaining.starts_with("\\[") {
         return Some(TokenMatch {
             replacement: "[".to_string(),
             length: 2,
         });
-    }
-    else if remaining.starts_with("\\]") {
+    } else if remaining.starts_with("\\]") {
         return Some(TokenMatch {
             replacement: "]".to_string(),
             length: 2,
         });
-    }
-    else if remaining.starts_with("\\=") {
+    } else if remaining.starts_with("\\=") {
         return Some(TokenMatch {
             replacement: "=".to_string(),
             length: 2,
@@ -905,7 +916,7 @@ fn try_parse_token(input: &str, i: usize) -> Option<TokenMatch> {
 
                         return Some(TokenMatch {
                             replacement: format!(
-                                r#"<span class="explainable" title="{}">{}</span>"#,
+                                r#"<span class="tooltip" title="{}">{}</span>"#,
                                 explanation_content.trim(),
                                 text_content.trim()
                             ),
@@ -922,10 +933,7 @@ fn try_parse_token(input: &str, i: usize) -> Option<TokenMatch> {
             let bold_italic_text = &remaining[3..3 + end_pos];
             let full_length = 3 + bold_italic_text.len() + 3;
             return Some(TokenMatch {
-                replacement: format!(
-                    r#"<span class="bold-italic">{}</span>"#,
-                    bold_italic_text
-                ),
+                replacement: format!(r#"<span class="bold-italic">{}</span>"#, bold_italic_text),
                 length: full_length,
             });
         }
@@ -1044,7 +1052,7 @@ fn try_parse_token(input: &str, i: usize) -> Option<TokenMatch> {
     None
 }
 
- fn render_text(input: &str) -> String {
+fn render_text(input: &str) -> String {
     let mut output = String::new();
     let mut i = 0;
     while i < input.len() {
@@ -1106,7 +1114,12 @@ fn format_image(token: &BlockToken) -> String {
 fn format_footnote(token: &BlockToken) -> String {
     match token {
         BlockToken::FootNote { id, description } => {
-            format!("<sup id=\"fnref:{}\"><a href=\"#fn:{}\" rel=\"footnote\">{}</a></sup>", id, id, render_text(description))
+            format!(
+                "<sup id=\"fnref:{}\"><a href=\"#fn:{}\" rel=\"footnote\">{}</a></sup>",
+                id,
+                id,
+                render_text(description)
+            )
         }
         _ => "".to_string(),
     }
@@ -1117,7 +1130,10 @@ fn format_todo_list(token: &BlockToken) -> String {
         BlockToken::ToDo { kind, description } => {
             match kind {
                 ToDoKind::Task => {
-                    format!("<div class=\"todo-item\"><input type=\"checkbox\" disabled>{}</div>", render_text(description))
+                    format!(
+                        "<div class=\"todo-item\"><input type=\"checkbox\" disabled>{}</div>",
+                        render_text(description)
+                    )
                 }
                 ToDoKind::Done => {
                     format!("<div class=\"todo-item\"><input type=\"checkbox\" checked disabled>{}</div>", render_text(description))
@@ -1130,9 +1146,7 @@ fn format_todo_list(token: &BlockToken) -> String {
 
 fn format_horizontal_line(token: &BlockToken) -> String {
     match token {
-        BlockToken::HorizontalLine => {
-            "<hr class=\"custom-hr\">".to_string()
-        }
+        BlockToken::HorizontalLine => "<hr class=\"custom-hr\">".to_string(),
         _ => "".to_string(),
     }
 }
@@ -1149,7 +1163,10 @@ fn format_paragraph(token: &BlockToken) -> String {
 fn format_list(token: &BlockToken) -> String {
     match token {
         BlockToken::List(raw_list) => {
-            format!("<div class=\"list-container\">{}</div>", list_to_html(&render_text(raw_list)))
+            format!(
+                "<div class=\"list-container\">{}</div>",
+                list_to_html(&render_text(raw_list))
+            )
         }
         _ => "".to_string(),
     }
@@ -1158,7 +1175,11 @@ fn format_list(token: &BlockToken) -> String {
 fn format_table(token: &BlockToken) -> String {
     match token {
         BlockToken::Table { id, content } => {
-            format!("<div id=\"{}\" class=\"table-container\">{}</div>", id, table_to_html(&content))
+            format!(
+                "<div id=\"{}\" class=\"table-container\">{}</div>",
+                id,
+                table_to_html(&content)
+            )
         }
         _ => "".to_string(),
     }
@@ -1197,7 +1218,10 @@ fn format_collapse(token: &BlockToken) -> String {
 fn format_block_math(token: &BlockToken) -> String {
     match token {
         BlockToken::BlockMath { id, content } => {
-            format!("<div id=\"{}\" class=\"block-math\">\\[\n{}\n\\]</div>", id, content)
+            format!(
+                "<div id=\"{}\" class=\"block-math\">\\[\n{}\n\\]</div>",
+                id, content
+            )
         }
         _ => "".to_string(),
     }
@@ -1222,10 +1246,14 @@ fn format_canvas(token: &BlockToken) -> String {
     }
 }
 
-fn format_image_carousel (token: &BlockToken) -> String {
+fn format_image_carousel(token: &BlockToken) -> String {
     match token {
         BlockToken::ImageCarousel { id, content } => {
-            format!("<div id=\"{}\" class=\"image-carousel\">{}</div>", id, carousel_to_html(content))
+            format!(
+                "<div id=\"{}\" class=\"image-carousel\">{}</div>",
+                id,
+                carousel_to_html(content)
+            )
         }
         _ => "".to_string(),
     }
@@ -1270,13 +1298,16 @@ fn format_faq(token: &BlockToken) -> String {
 fn format_code_block(token: &BlockToken) -> String {
     match token {
         BlockToken::CodeBlock { lang, code } => {
-            format!("<pre><code class=\"language-{}\">{}</code></pre>", lang, code)
+            format!(
+                "<pre><code class=\"language-{}\">{}</code></pre>",
+                lang, code
+            )
         }
         _ => "".to_string(),
     }
 }
 
- fn tokens_to_html (tokens: &Vec<BlockToken>) -> String {
+fn tokens_to_html(tokens: &Vec<BlockToken>) -> String {
     let mut result = String::new();
 
     for token in tokens {
@@ -1309,271 +1340,98 @@ fn format_code_block(token: &BlockToken) -> String {
 }
 
 use std::fs;
-pub fn markdown_to_html(input: &str, background_image_url: &str, title: &str, author: &str, created_on: &str) -> String {
-    // open file css.txt and read its contents
-    let css_path = "css.txt";
-    // read the contents of the file, if not found, return an empty string
-    let css_content = fs::read_to_string(css_path).unwrap_or("".to_string());
 
+pub fn markdown_to_html(
+    input: &str,
+    background_image_url: &str,
+    title: &str,
+    author: &str,
+    created_on: &str,
+) -> Option<String> {
+    // Attempt to read files, return None if any read fails
+    let partial_js = fs::read_to_string("../blog/pages/blog.js").ok()?;
+    let full_js = format!(
+        r#"
+        <script>
+            {}
+            applyContrastiveTextColor("{}");
+        </script>"#,
+        partial_js, background_image_url
+    );
 
-    let html_start = format!(r#"
-<!DOCTYPE html>
-<html lang='en'>
+    let partial_css = fs::read_to_string("../blog/pages/blog.css").ok()?;
+    let full_css = format!(
+        r#"
+        <style>
+            {}
+            :root {{
+            --background-image: url('{}');
+            }}
+            body {{
+                background-image: var(--background-image);
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+            }}
+            .material-symbols-outlined {{
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24;
+            }}
+        </style>"#,
+        partial_css,
+        background_image_url
+    );
 
-<head>
-  <meta charset='UTF-8'>
-  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-  <title>Tailwind Project</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap">
-  <script>
-    MathJax = {{
-      tex: {{
-        inlineMath: [['$', '$']]
-    }},
-      svg: {{
-        fontCache: 'global'
-      }}
-    }};
-  </script>
-  <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
-  </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/bash.min.js"
-    integrity="sha512-nQ9BQEzuov+Ry6EIH8ve7VKKdOG91Ix3SAQcFmOiBR5qG8sJONrph1InWTJOGjfP5QkSTSy4VnkEsPMoFYRsUQ=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/c.min.js"
-    integrity="sha512-HheXunBWZVAec/gPxpzgxGZmajdCQWVBxMba1VaUAADs8g7GmlB8k8346ihWgGtyrjfr9Qjmk7+IFHrjj2OaJQ=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/cpp.min.js"
-    integrity="sha512-i2YY1iYKnV+oOmxBA9Jd4YFwM8E07ySVuVEEhPWQ/gSVHVvzWhHbvK1REz1KuZL4amejLDjslRvMIo8ORiTu6Q=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/csharp.min.js"
-    integrity="sha512-E508cDPDWSFwXbo0jUpAxAuDtuKyg3qzALy/oyrTBcP07/Xz79ajxXl4LzoNAZw+hr4NAnjPhAdwN0qtmJ9ukg=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/css.min.js"
-    integrity="sha512-fQhadp2Av4sRhTYd9TEggQW4NrosThwDUXIMLin90uepvmCZG0mRTdPVtHujrXD22qMTtdQlrAEdvWocezI8ow=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/haskell.min.js"
-    integrity="sha512-wV1s4ylNcflirsC0Ug9dDahOxjj/JSQheHv0loB9Q3bv7G0TYLduOWWmhz2MjMKRO6+LS8AgeuhBB8Gny4pdFQ=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/java.min.js"
-    integrity="sha512-DTx6faal3nhEB55v+yn8UnXCxaxCdMR6gBZ0zzXhGD2qvtgf6xbW5iA7G4CUn78R9PoPzTelR7xIQwGNUJAv2w=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/javascript.min.js"
-    integrity="sha512-yfJUrNGEC39mHLjZ37CZG69Ij9Vnan7NHxXVuuBxafgfk4F+n7j/NhNWtyhKGTYEgWfgUqzPYMZJZY1HIsPCbQ=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/json.min.js"
-    integrity="sha512-f2/ljYb/tG4fTHu6672tyNdoyhTIpt4N1bGrBE8ZjwIgrjDCd+rljLpWCZ2Vym9PBWQy2Tl9O22Pp2rMOMvH4g=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/latex.min.js"
-    integrity="sha512-4h3uWtv1iEA4sgWqZ1is70GnmESsRzCRaGTyeajS/8Zq0CGWVCCRTrpEw5mJ57vF9LIfwNwCMNeV6IjGytrhrA=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/makefile.min.js"
-    integrity="sha512-lLnMPGLNcEgvwt6f291Bp+WqF3HRxv+8q1t6PA/XTwZH/D1XLB2tUayRAjfAp6AAUrrieJnXQCUtGZtcMhP6ag=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/markdown.min.js"
-    integrity="sha512-j4HfSOGvYNRQiq8wvftDi9oVmhSqJuh2dALD+Btn53looHt+e1aaNX9gcQsnUAi42694fFhmmU4fx8nzs6VN7Q=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/nginx.min.js"
-    integrity="sha512-kvYzE8uXJNOxB79FbRApSqfjbo7ngD2ulfLeAS5yrDpVL2vpgsw8FhM/N77/xstE183jysYBacXAOrZtgQWW/A=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/python.min.js"
-    integrity="sha512-/uCTceIDOniHf+VUKbCnP/x6GQSRrm4GwUtQYMgKa9yIZPGzlR04flSsD+2or7bPn44VY9inIHI4cwNCcZmJDw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/rust.min.js"
-    integrity="sha512-uSwY2GKSvbwBXA67+Hk3onpjVKHLMc734wgIclGBo3XUVnaksT0Mp3qRjmzVMAsAUrk8ZxbSxGsIQ8I0XkY3Gg=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/sql.min.js"
-    integrity="sha512-RzK8J6sL3xE7eyppcm7hjCq6fpW1kDlnKPO5jX+Z++/ChYXqsq5AoFq0z78g3jf/1DV5wMBZukqIyb+0xPkCVw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/verilog.min.js"
-    integrity="sha512-bFy4K4cSBOA7MNrKZThhLeok+EAwwR+R3J0bFVKczK0h9MAVEPVSYMWoIGDs3yOJ2WxLJUEeJ1dkpM8vdasxqw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/vhdl.min.js"
-    integrity="sha512-sVEWS+8DbPq026tWk3RggYqiRKU9pwpelEdUgNnJ7ow3Wb99nn5E7Nr8EcjPFjwAK6z/o/ebqs56Z6/0d5Iw7Q=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/x86asm.min.js"
-    integrity="sha512-gLk8o5O27h5BbPkdiO0RMiAvU0d8U+S/ft7X5Yh2rpg9XdQ0wBgkjSQ7qz4R6sO9A7AzeLQJ5pKpXGs4jks05A=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-  <script>hljs.highlightAll();</script>
-  <style>
-    :root {{
-          --background-image: url('{}');
-      }}
-      body {{
-          background-image: var(--background-image);
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
-          background-attachment: fixed;
-      }}
-    .material-symbols-outlined {{
-      font-variation-settings:
-      'FILL' 0,
-      'wght' 400,
-      'GRAD' 0,
-      'opsz' 24;
-    }}
-  </style>
-  <script>
-function getContrastiveColorWithMode(imageUrl, callback) {{
-  const img = new Image();
-  img.crossOrigin = "Anonymous"; // Allow cross-origin images
-  img.src = imageUrl;
-
-  img.onload = function () {{
-      // Create a canvas to process the image
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, img.width, img.height);
-
-      // Extract image data
-      const imageData = ctx.getImageData(0, 0, img.width, img.height);
-      const data = imageData.data;
-
-      let totalR = 0, totalG = 0, totalB = 0;
-
-      // Loop through pixels to calculate the total RGB values
-      for (let i = 0; i < data.length; i += 4) {{
-          totalR += data[i];
-          totalG += data[i + 1];
-          totalB += data[i + 2];
-      }}
-
-      // Calculate average RGB
-      const pixelCount = data.length / 4;
-      const avgR = totalR / pixelCount;
-      const avgG = totalG / pixelCount;
-      const avgB = totalB / pixelCount;
-
-      // Calculate average luminance of the image
-      const calculateLuminance = (r, g, b) => {{
-          const normalize = (val) => (val / 255 <= 0.03928 ? val / 255 / 12.92 : ((val / 255 + 0.055) / 1.055) ** 2.4);
-          return 0.2126 * normalize(r) + 0.7152 * normalize(g) + 0.0722 * normalize(b);
-      }};
-      const backgroundLuminance = calculateLuminance(avgR, avgG, avgB);
-
-      // Decide light or dark mode based on luminance
-      const isDarkMode = backgroundLuminance > 0.5; // Luminance > 0.5 -> light background
-
-      // Adjust contrastive color in HSL
-      const rgbToHsl = (r, g, b) => {{
-          r /= 255;
-          g /= 255;
-          b /= 255;
-
-          const max = Math.max(r, g, b);
-          const min = Math.min(r, g, b);
-          const delta = max - min;
-
-          let h = 0, s = 0, l = (max + min) / 2;
-
-          if (delta !== 0) {{
-              s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min);
-
-              switch (max) {{
-                  case r: h = ((g - b) / delta + (g < b ? 6 : 0)) * 60; break;
-                  case g: h = ((b - r) / delta + 2) * 60; break;
-                  case b: h = ((r - g) / delta + 4) * 60; break;
-              }}
-          }}
-
-          return {{ h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) }};
-      }};
-
-      const hsl = rgbToHsl(avgR, avgG, avgB);
-
-      // Rotate hue for contrasting color
-      const contrastHue = (hsl.h + 180) % 360;
-      const contrastSaturation = Math.min(hsl.s + 30, 100);
-      const contrastLightness = isDarkMode ? Math.min(hsl.l + 50, 85) : Math.max(hsl.l - 50, 15);
-
-      const hslToRgb = (h, s, l) => {{
-          s /= 100;
-          l /= 100;
-
-          const c = (1 - Math.abs(2 * l - 1)) * s;
-          const x = c * (1 - Math.abs((h / 60) % 2 - 1));
-          const m = l - c / 2;
-
-          let r = 0, g = 0, b = 0;
-
-          if (h >= 0 && h < 60) {{ r = c; g = x; b = 0; }}
-          else if (h >= 60 && h < 120) {{ r = x; g = c; b = 0; }}
-          else if (h >= 120 && h < 180) {{ r = 0; g = c; b = x; }}
-          else if (h >= 180 && h < 240) {{ r = 0; g = x; b = c; }}
-          else if (h >= 240 && h < 300) {{ r = x; g = 0; b = c; }}
-          else if (h >= 300 && h < 360) {{ r = c; g = 0; b = x; }}
-
-          r = Math.round((r + m) * 255);
-          g = Math.round((g + m) * 255);
-          b = Math.round((b + m) * 255);
-
-          return {{ r, g, b }};
-      }};
-
-      const contrastColorRgb = hslToRgb(contrastHue, contrastSaturation, contrastLightness);
-
-      const contrastiveColor = `rgb(${{contrastColorRgb.r}}, ${{contrastColorRgb.g}}, ${{contrastColorRgb.b}})`;
-      callback(contrastiveColor, isDarkMode);
-  }};
-}}
-
-function applyContrastiveTextColor(imageUrl) {{
-  getContrastiveColorWithMode(imageUrl, (contrastiveColor, isDarkMode) => {{
-      const root = document.documentElement;
-
-      // Apply the chosen text color and mode
-      root.style.setProperty("--color-text-light", contrastiveColor);
-      root.style.setProperty("--color-text-dark", contrastiveColor);
-      root.style.setProperty("--theme-mode", isDarkMode ? "light" : "dark");
-
-      if (isDarkMode) {{
-          document.body.classList.add("light-mode");
-          document.body.classList.remove("dark-mode");
-      }} else {{
-          document.body.classList.add("dark-mode");
-          document.body.classList.remove("light-mode");
-      }}
-  }});
-}}
-
-// Call the function with your image URL
-applyContrastiveTextColor("{}");
-  </script>
-  <style>{}</style>
-</head> 
-<body>
-  <div class='glass'>
-    <div class='content'>
-"#, background_image_url, background_image_url, css_content);
-    let html_extra = format!(r#"
-<div class="flex flex-col">
-<div class="flex flex-row gap-6">
-    <div><a href="/"><span class="material-symbols-outlined" style="font-size: 32px;">home</span></a></div>
-</div>
-<h1>{}</h1>
-  <h2>Author: {}</h2>
-  <h2>Created In: {}</h2>
-</div>"#, title, author, created_on);
-    let html_end = r#"
-</div></div></body></html>
-    "#;
+    let partial_head = fs::read_to_string("../blog/pages/blog.head").ok()?;
+    let page_title = format!("Blog: {}", title);
+    let full_head = format!(
+        r#"
+        <head>
+            <title>{}</title>
+            {}
+            {}
+            {}
+        </head>"#,
+        page_title, partial_head, full_css, full_js
+    );
 
     let tokens = tokenizer(input);
-    let html_content = tokens_to_html(&tokens);
-    let full_html = format!("{}{}{}{}", html_start, html_extra, html_content, html_end);
-    full_html
+    let partial_body = tokens_to_html(&tokens);
+    let full_body = format!(
+        r#"
+        <body>
+            <div class='glass'>
+                <div class='content'>
+                    <div class="flex flex-col">
+                        <div class="flex flex-row gap-6">
+                            <div><a href="/"><span class="material-symbols-outlined" style="font-size: 32px;">home</span></a></div>
+                        </div>
+                        <h1>{}</h1>
+                        <h2>Author: {}</h2>
+                        <h2>Created In: {}</h2>
+                    </div>
+                    {}
+                </div>
+            </div>
+        </body>
+        "#,
+        title, author, created_on, partial_body
+    );
+
+    let full_html = format!(
+        r#"
+        <!DOCTYPE html>
+        <html lang="en">
+            {}
+            {}
+        </html>
+        "#,
+        full_head, full_body
+    );
+
+    Some(full_html)
 }

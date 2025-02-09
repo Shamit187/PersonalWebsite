@@ -37,7 +37,8 @@ fn main() {
         }
     };
 
-    let html_content = parser::markdown_to_html(&markdown_content, &background_image, title, author, &created_on);
+    let html_content = parser::markdown_to_html(&markdown_content, &background_image, title, author, &created_on)
+        .unwrap_or_else(|| String::from("Error converting markdown to HTML"));
 
     let output_path = "preview.html";
     match fs::write(&output_path, html_content) {
