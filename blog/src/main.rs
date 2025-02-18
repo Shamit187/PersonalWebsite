@@ -28,9 +28,12 @@ async fn main() {
     let app = Router::new()
         .route("/", get(root))
         .route("/blog/{slug}", get(blog_post))
-        .route("/get-list/{start}/{end}", get(get_list))
+        // .route("/get-list/{start}/{end}", get(get_list))
         .route("/favicon.ico", get(favicon))
+        .route("/topics", get(get_topics))
+        .route("/topics/{topic_id}", get(get_blogs_by_topic))
         .with_state(Arc::new(app_state));
+    
 
     // Start the server
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
@@ -49,35 +52,229 @@ fn bad_response() -> Response {
 // Handler for the root route
 async fn root() -> Response {
     println!("/ API called");
-    let html_head = match fs::read_to_string("pages/index.head") {
-        Ok(content) => content,
+    // let html_head = match fs::read_to_string("pages/index.head") {
+    //     Ok(content) => content,
+    //     Err(_) => return bad_response(),
+    // };
+
+    // let html_body = match fs::read_to_string("pages/index.body") {
+    //     Ok(content) => content,
+    //     Err(_) => return bad_response(),
+    // };
+
+    // let css = match fs::read_to_string("pages/index.css") {
+    //     Ok(content) => content,
+    //     Err(_) => return bad_response(),
+    // };
+
+    // let html_content = format!(
+    //     r#"
+    //     <!DOCTYPE html>
+    //     <html lang="en">
+    //     <head>
+    //         {}
+    //         <style>{}</style>
+    //     </head>
+    //     <body>
+    //         {}
+    //     </body>
+    //     </html>
+    //     "#,
+    //     html_head, css, html_body
+    // );
+    // demo html_content for now
+    let html_content = r#"
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Blog</title>
+    </head>
+    <body>
+        <h1>Blog</h1>
+        <p>Welcome to the blog!</p>
+    </body>
+    </html>
+    "#;
+
+    Response::builder()
+        .header("Content-Type", "text/html; charset=utf-8")
+        .body(html_content.into())
+        .unwrap()
+}
+
+async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>) -> Response {
+    let html_content = format!(r#"
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Blog Post</title>
+    </head>
+    <body>
+        <h1>You are viewing a blog post!</h1>
+        <h2>Filename: {slug}</h2>
+    </body>
+    </html>
+    "#, slug=slug);
+
+    Response::builder()
+        .header("Content-Type", "text/html; charset=utf-8")
+        .body(html_content.into())
+        .unwrap()
+}
+
+
+// Handler for a specific blog post
+// async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>) -> Response {
+//     let start_time = Instant::now();
+//     let db = state.db.lock().await;
+
+//     if let Err(_) = db.increment_click_count(&slug) {
+//         return bad_response();
+//     }
+//     let blog = match db.fetch_blog_by_slug(&slug) {
+//         Ok(blog) => blog,
+//         Err(_) => return bad_response(),
+//     };
+
+//     let response = match blog {
+//         Some(blog) => {
+//             // Fetch the content from the file
+//             let file_path = format!("files/{}", blog.path);
+//             let file_content = match fs::read_to_string(&file_path) {
+//                 Ok(content) => content,
+//                 Err(_) => return bad_response(),
+//             };
+
+//             let background_image_url = blog.background_image.unwrap_or_else(|| {
+//                 "https://picsum.photos/1920/1080".to_string()
+//             });
+
+//             let parsed_content = parser::markdown_to_html(
+//                 &file_content,
+//                 &background_image_url,
+//                 &blog.title,
+//                 &blog.author,
+//                 &blog.created_at,
+//             );
+
+//             if let Some(parsed_content) = parsed_content {
+//                 Response::builder()
+//                     .header("Content-Type", "text/html; charset=utf-8")
+//                     .body(parsed_content.into())
+//                     .unwrap()
+//             } else {
+//                 bad_response()
+//             }
+//         }
+//         None => Response::builder()
+//             .header("Content-Type", "text/html; charset=utf-8")
+//             .body("<h1>Blog not found</h1>".to_string().into())
+//             .unwrap(),
+//     };
+//     let duration = start_time.elapsed();
+//     println!("/blog/{slug} API called: Time elapsed in blog_post: {}ms", duration.as_secs_f64() * 1000.0);
+//     response
+// }
+
+// Handler for the /get-list/{start}/{end} API
+// async fn get_list(
+//     Path((start, end)): Path<(i64, i64)>,
+//     State(state): State<Arc<AppState>>,
+// ) -> Html<String> {
+//     println!("/get-list/{start}/{end} API called");
+
+//     let db = state.db.lock().await;
+
+//     // Fetch blogs in the range
+//     let blogs = db
+//         .fetch_blogs_in_range(start, end)
+//         .expect("Failed to fetch blogs");
+
+//     let total_rows = db
+//         .count_total_rows()
+//         .expect("Failed to fetch total rows") - 1;
+
+//     // Build the HTML string
+//     let html_content = blogs
+//         .into_iter()
+//         .map(|blog| {
+//             let tags_html = blog
+//                 .tags
+//                 .into_iter()
+//                 .map(|tag| format!(r#"<div class="blog-tag">{}</div>"#, tag.name))
+//                 .collect::<Vec<_>>()
+//                 .join("");
+
+//             format!(
+//                 r#"
+//                 <div class="blog" onclick="location.href='/blog/{}';">
+//                     <div class="blog-title">{}</div>
+//                     <div class="blog-date">Created In: {}</div>
+//                     <div class="blog-description">{}</div>
+//                     <div class="blog-tag-list">{}</div>
+//                 </div>
+//                 "#,
+//                 blog.slug, blog.title, blog.created_at, blog.description, tags_html
+//             )
+//         })
+//         .collect::<Vec<_>>()
+//         .join("\n");
+//     let previous_start = if start - 9 < 0 { 0 } else { start - 9 };
+//     let previous_end = previous_start + 9;
+//     let next_end = if end + 9 > total_rows {total_rows } else {end + 9};
+//     let next_start = next_end - 9;
+//     let previous_disabled = if start == 0 { "disabled" } else { "" };
+//     let next_disabled = if end == total_rows { "disabled" } else { "" };
+
+//     Html(format!(
+//         r##"
+//         <div class="blog-list flex-grow flex flex-col gap-4" id="blogList">
+//             {}
+//             <div class="foot">
+//                 <button class="foot-button" id="previousButton" 
+//                     hx-get="/get-list/{}/{}" 
+//                     hx-target="#blogList" 
+//                     hx-trigger="click" 
+//                     hx-swap="outerHTML"
+//                     {}
+//                 >
+//                     Previous
+//                 </button>
+//                 <div class="foot-info" id="footInfo">Showing: {} - {}</div>
+//                 <button class="foot-button" id="nextButton" 
+//                     hx-get="/get-list/{}/{}" 
+//                     hx-target="#blogList" 
+//                     hx-trigger="click"
+//                     hx-swap="outerHTML"
+//                     {}
+//                 >
+//                     Next
+//                 </button>
+//             </div>
+//         </div>
+//         "##,
+//         html_content, previous_start, previous_end, previous_disabled, start, end, next_start, next_end, next_disabled
+//     ))
+// }
+
+// New handler function to fetch and display topics
+async fn get_topics(State(state): State<Arc<AppState>>) -> Response {
+    println!("/topics API called");
+    let db = state.db.lock().await;
+    let topics = match db.fetch_topics() {
+        Ok(topics) => topics,
         Err(_) => return bad_response(),
     };
 
-    let html_body = match fs::read_to_string("pages/index.body") {
-        Ok(content) => content,
-        Err(_) => return bad_response(),
-    };
-
-    let css = match fs::read_to_string("pages/index.css") {
-        Ok(content) => content,
-        Err(_) => return bad_response(),
-    };
-
+    // Build an HTML list with links to the blogs of each topic
+    let topics_html = topics.into_iter()
+        .map(|topic| format!("<li><a href=\"/topics/{}\">{}</a></li>", topic.topic_id, topic.topic_name))
+        .collect::<String>();
     let html_content = format!(
-        r#"
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            {}
-            <style>{}</style>
-        </head>
-        <body>
-            {}
-        </body>
-        </html>
-        "#,
-        html_head, css, html_body
+        "<html><body><h1>Topics</h1><ul>{}</ul></body></html>",
+        topics_html
     );
 
     Response::builder()
@@ -86,139 +283,30 @@ async fn root() -> Response {
         .unwrap()
 }
 
-// Handler for a specific blog post
-async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>) -> Response {
-    let start_time = Instant::now();
-    let db = state.db.lock().await;
 
-    if let Err(_) = db.increment_click_count(&slug) {
-        return bad_response();
-    }
-    let blog = match db.fetch_blog_by_slug(&slug) {
-        Ok(blog) => blog,
+async fn get_blogs_by_topic(Path(topic_id): Path<i32>, State(state): State<Arc<AppState>>) -> Response {
+    println!("/topics/{} API called", topic_id);
+    let db = state.db.lock().await;
+    let blogs = match db.fetch_blogs_by_topic(topic_id) {
+        Ok(blogs) => blogs,
         Err(_) => return bad_response(),
     };
 
-    let response = match blog {
-        Some(blog) => {
-            // Fetch the content from the file
-            let file_path = format!("files/{}", blog.path);
-            let file_content = match fs::read_to_string(&file_path) {
-                Ok(content) => content,
-                Err(_) => return bad_response(),
-            };
+    // Build an HTML list with links to each blog (assuming the blog route uses file_name as slug)
+    let blogs_html = blogs.into_iter()
+        .map(|blog| format!("<li><a href=\"/blog/{}\">{}</a></li>", blog.file_name, blog.title))
+        .collect::<String>();
+    let html_content = format!(
+        "<html><body><h1>Blogs for Topic {}</h1><ul>{}</ul></body></html>",
+        topic_id, blogs_html
+    );
 
-            let background_image_url = blog.background_image.unwrap_or_else(|| {
-                "https://picsum.photos/1920/1080".to_string()
-            });
-
-            let parsed_content = parser::markdown_to_html(
-                &file_content,
-                &background_image_url,
-                &blog.title,
-                &blog.author,
-                &blog.created_at,
-            );
-
-            if let Some(parsed_content) = parsed_content {
-                Response::builder()
-                    .header("Content-Type", "text/html; charset=utf-8")
-                    .body(parsed_content.into())
-                    .unwrap()
-            } else {
-                bad_response()
-            }
-        }
-        None => Response::builder()
-            .header("Content-Type", "text/html; charset=utf-8")
-            .body("<h1>Blog not found</h1>".to_string().into())
-            .unwrap(),
-    };
-    let duration = start_time.elapsed();
-    println!("/blog/{slug} API called: Time elapsed in blog_post: {}ms", duration.as_secs_f64() * 1000.0);
-    response
+    Response::builder()
+        .header("Content-Type", "text/html; charset=utf-8")
+        .body(html_content.into())
+        .unwrap()
 }
 
-// Handler for the /get-list/{start}/{end} API
-async fn get_list(
-    Path((start, end)): Path<(i64, i64)>,
-    State(state): State<Arc<AppState>>,
-) -> Html<String> {
-    println!("/get-list/{start}/{end} API called");
-
-    let db = state.db.lock().await;
-
-    // Fetch blogs in the range
-    let blogs = db
-        .fetch_blogs_in_range(start, end)
-        .expect("Failed to fetch blogs");
-
-    let total_rows = db
-        .count_total_rows()
-        .expect("Failed to fetch total rows") - 1;
-
-    // Build the HTML string
-    let html_content = blogs
-        .into_iter()
-        .map(|blog| {
-            let tags_html = blog
-                .tags
-                .into_iter()
-                .map(|tag| format!(r#"<div class="blog-tag">{}</div>"#, tag.name))
-                .collect::<Vec<_>>()
-                .join("");
-
-            format!(
-                r#"
-                <div class="blog" onclick="location.href='/blog/{}';">
-                    <div class="blog-title">{}</div>
-                    <div class="blog-date">Created In: {}</div>
-                    <div class="blog-description">{}</div>
-                    <div class="blog-tag-list">{}</div>
-                </div>
-                "#,
-                blog.slug, blog.title, blog.created_at, blog.description, tags_html
-            )
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
-    let previous_start = if start - 9 < 0 { 0 } else { start - 9 };
-    let previous_end = previous_start + 9;
-    let next_end = if end + 9 > total_rows {total_rows } else {end + 9};
-    let next_start = next_end - 9;
-    let previous_disabled = if start == 0 { "disabled" } else { "" };
-    let next_disabled = if end == total_rows { "disabled" } else { "" };
-
-    Html(format!(
-        r##"
-        <div class="blog-list flex-grow flex flex-col gap-4" id="blogList">
-            {}
-            <div class="foot">
-                <button class="foot-button" id="previousButton" 
-                    hx-get="/get-list/{}/{}" 
-                    hx-target="#blogList" 
-                    hx-trigger="click" 
-                    hx-swap="outerHTML"
-                    {}
-                >
-                    Previous
-                </button>
-                <div class="foot-info" id="footInfo">Showing: {} - {}</div>
-                <button class="foot-button" id="nextButton" 
-                    hx-get="/get-list/{}/{}" 
-                    hx-target="#blogList" 
-                    hx-trigger="click"
-                    hx-swap="outerHTML"
-                    {}
-                >
-                    Next
-                </button>
-            </div>
-        </div>
-        "##,
-        html_content, previous_start, previous_end, previous_disabled, start, end, next_start, next_end, next_disabled
-    ))
-}
 
 async fn favicon() -> Result<Response<Body>, (StatusCode, &'static str)> {
     println!("/favicon.ico API called");

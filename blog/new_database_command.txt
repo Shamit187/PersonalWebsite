@@ -1,0 +1,27 @@
+sqlite3 blog_database.db
+
+-- Create 'topic' table
+CREATE TABLE topic (
+    topic_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    topic_name TEXT NOT NULL
+);
+
+-- Create 'file' table
+CREATE TABLE file (
+    file_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    file_name TEXT NOT NULL,
+    title TEXT,
+    date DATE,
+    description TEXT,
+    image_url TEXT
+);
+
+-- Create 'topic_file' table
+CREATE TABLE topic_file (
+    topic_id INTEGER,
+    file_id INTEGER,
+    order_num INTEGER,
+    FOREIGN KEY (topic_id) REFERENCES topic(topic_id),
+    FOREIGN KEY (file_id) REFERENCES file(file_id),
+    PRIMARY KEY (topic_id, file_id)
+);
