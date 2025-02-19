@@ -28,13 +28,19 @@ impl Database {
     }
 
     /// Fetch a single blog by its slug (which is the file_name in the file table)
-    pub fn fetch_blog_by_slug(&self, slug: &str) -> Result<Option<Blog>> {
-        let mut stmt = self.connection.prepare(
+    pub fn fetch_blog_by_id(&self, file_id: &str) -> Result<Option<Blog>> {
+        let mut stmt =match self.connection.prepare(
             "SELECT file_name, file_id, title, date, description, image_url
              FROM file
-             WHERE file_name = ?1;"
-        )?;
-        let blog = stmt.query_row([slug], |row| {
+             WHERE file_id = ?1;"
+        ) {
+            Ok(stmt) => stmt,
+            Err(e) => {
+                println!("Error preparing statement for blog {}: {}", file_id, e);
+                return Err(e);
+            }
+        };
+        let blog =match stmt.query_row([file_id], |row| {
             Ok(Blog {
                 file_name: row.get(0)?,
                 file_id: row.get(1)?,
@@ -43,7 +49,18 @@ impl Database {
                 description: row.get(4)?,
                 image_url: row.get(5)?,
             })
-        }).optional()?;
+        }) {
+            Ok(blog) => Some(blog),
+            Err(e) => {
+                if e == rusqlite::Error::QueryReturnedNoRows {
+                    println!("No blog found for id {}", file_id);
+                    None
+                } else {
+                    println!("Error fetching blog {}: {}", file_id, e);
+                    return Err(e);
+                }
+            }
+        };
         Ok(blog)
     }
 
@@ -52,12 +69,18 @@ impl Database {
         let mut stmt = self.connection.prepare(
             "SELECT topic_id, topic_name FROM topic;"
         )?;
-        let topic_iter = stmt.query_map([], |row| {
+        let topic_iter = match stmt.query_map([], |row| {
             Ok(Topic {
                 topic_id: row.get(0)?,
                 topic_name: row.get(1)?,
             })
-        })?;
+        }) {
+            Ok(iter) => iter,
+            Err(e) => {
+                println!("Error executing query_map for topics: {}", e);
+                return Err(e);
+            }
+        };
         let mut topics = Vec::new();
         for topic in topic_iter {
             topics.push(topic?);
@@ -65,7 +88,7 @@ impl Database {
         Ok(topics)
     }
 
-    /// Fetch all blogs for a given topic, ordered by the "order" field in the topic_file table.
+    /// Fetch all blogs for a given topic, ordered by the "order_num" field in the topic_file table.
     pub fn fetch_blogs_by_topic(&self, topic_id: i32) -> Result<Vec<Blog>> {
         println!("Fetching blogs for topic {}", topic_id);
     

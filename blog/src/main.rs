@@ -1,3 +1,4 @@
+use axum::http::response;
 use axum::{
     body::Body, extract::Path, extract::State, http::StatusCode, response::Html,
     response::Response, routing::get, Router,
@@ -14,6 +15,11 @@ mod parser;
 
 struct AppState {
     db: Arc<Mutex<Database>>,
+}
+
+enum BadResponseType {
+    InternalServerError,
+    NotFound,
 }
 
 #[tokio::main]
@@ -41,82 +47,102 @@ async fn main() {
 }
 
 // Helper function to create a bad response
-fn bad_response() -> Response {
-    Response::builder()
-        .status(500)
-        .header("Content-Type", "text/plain; charset=utf-8")
-        .body("Internal Server Error".into())
-        .unwrap()
+fn bad_response(bad_response_type: BadResponseType) -> Response {
+    match bad_response_type {
+        BadResponseType::InternalServerError => {
+            Response::builder()
+                .status(500)
+                .header("Content-Type", "text/plain; charset=utf-8")
+                .body("Internal Server Error".into())
+                .unwrap()
+        }
+        BadResponseType::NotFound => {
+            Response::builder()
+                .status(404)
+                .header("Content-Type", "text/plain; charset=utf-8")
+                .body("Not Found".into())
+                .unwrap()
+        }
+    }
 }
 
 // Handler for the root route
 async fn root() -> Response {
     println!("/ API called");
-    // let html_head = match fs::read_to_string("pages/index.head") {
-    //     Ok(content) => content,
-    //     Err(_) => return bad_response(),
-    // };
+    let html_head = match fs::read_to_string("pages/index.head") {
+        Ok(content) => content,
+        Err(_) => return bad_response(BadResponseType::NotFound),
+    };
 
-    // let html_body = match fs::read_to_string("pages/index.body") {
-    //     Ok(content) => content,
-    //     Err(_) => return bad_response(),
-    // };
+    let html_body = match fs::read_to_string("pages/index.body") {
+        Ok(content) => content,
+        Err(_) => return bad_response(BadResponseType::NotFound),
+    };
 
     // let css = match fs::read_to_string("pages/index.css") {
     //     Ok(content) => content,
-    //     Err(_) => return bad_response(),
+    //     Err(_) => return bad_response(BadResponseType::NotFound),
     // };
 
-    // let html_content = format!(
-    //     r#"
-    //     <!DOCTYPE html>
-    //     <html lang="en">
-    //     <head>
-    //         {}
-    //         <style>{}</style>
-    //     </head>
-    //     <body>
-    //         {}
-    //     </body>
-    //     </html>
-    //     "#,
-    //     html_head, css, html_body
-    // );
-    // demo html_content for now
-    let html_content = r#"
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Blog</title>
-    </head>
-    <body>
-        <h1>Blog</h1>
-        <p>Welcome to the blog!</p>
-    </body>
-    </html>
-    "#;
-
+    let html_content = format!(
+        r#"
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            {}
+        </head>
+        
+            {}
+        
+        </html>
+        "#,
+        html_head, html_body
+    );
     Response::builder()
         .header("Content-Type", "text/html; charset=utf-8")
         .body(html_content.into())
         .unwrap()
 }
 
+
 async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>) -> Response {
-    let html_content = format!(r#"
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Blog Post</title>
-    </head>
-    <body>
-        <h1>You are viewing a blog post!</h1>
-        <h2>Filename: {slug}</h2>
-    </body>
-    </html>
-    "#, slug=slug);
+    println!("/blog/{slug} API called");
+    let start_time = Instant::now();
+    let db = state.db.lock().await;
+    let blog = match db.fetch_blog_by_id(&slug) {
+        Err(_) => return bad_response(BadResponseType::InternalServerError),              // Handle the error case
+        Ok(Some(blog)) => blog,                                                     // Blog found, unwrap the Some
+        Ok(None) => return bad_response(BadResponseType::NotFound),                       // Blog not found, handle the None
+    };
+    // in real code, I need to build the file using the code...
+
+    let file_path = format!("files/{}.md", blog.file_name);
+    let file_content = match fs::read_to_string(&file_path) {
+        Ok(content) => content,
+        Err(_) => return bad_response(BadResponseType::InternalServerError),
+    };
+
+    let background_image_url = if blog.image_url.is_empty() {
+        "https://picsum.photos/1920/1080".to_string()
+    } else {
+        blog.image_url
+    };
+
+    let parsed_content = parser::markdown_to_html(
+        &file_content,
+        &background_image_url,
+        &blog.title,
+        "Shamit Fatin",
+        &blog.date,
+    );
+
+    let html_content = match parsed_content {
+        Some(parsed_content) => parsed_content,
+        None => return bad_response(BadResponseType::InternalServerError),
+    };
+
+    let duration = start_time.elapsed();
+    println!("/blog/{slug} API called: Time elapsed in blog_post: {}ms", duration.as_secs_f64() * 1000.0);
 
     Response::builder()
         .header("Content-Type", "text/html; charset=utf-8")
@@ -259,51 +285,58 @@ async fn blog_post(Path(slug): Path<String>, State(state): State<Arc<AppState>>)
 //     ))
 // }
 
+
 // New handler function to fetch and display topics
 async fn get_topics(State(state): State<Arc<AppState>>) -> Response {
     println!("/topics API called");
     let db = state.db.lock().await;
     let topics = match db.fetch_topics() {
         Ok(topics) => topics,
-        Err(_) => return bad_response(),
+        Err(_) => return bad_response(BadResponseType::InternalServerError),
     };
 
-    // Build an HTML list with links to the blogs of each topic
+    // Generate the HTML fragment as a tags list
     let topics_html = topics.into_iter()
-        .map(|topic| format!("<li><a href=\"/topics/{}\">{}</a></li>", topic.topic_id, topic.topic_name))
+        .map(|topic| format!("<div hx-get=\"/topics/{}\" hx-target=\"#scroll-menu\" hx-swap=\"innerHTML\" class=\"cursor-pointer transform transition duration-200 ease-in-out hover:-translate-x-1 hover:scale-105 hover:[text-shadow:0_0_10px_white]\">{}</div>", topic.topic_id, topic.topic_name))
         .collect::<String>();
-    let html_content = format!(
-        "<html><body><h1>Topics</h1><ul>{}</ul></body></html>",
-        topics_html
-    );
 
     Response::builder()
         .header("Content-Type", "text/html; charset=utf-8")
-        .body(html_content.into())
+        .body(topics_html.into())
         .unwrap()
 }
-
 
 async fn get_blogs_by_topic(Path(topic_id): Path<i32>, State(state): State<Arc<AppState>>) -> Response {
     println!("/topics/{} API called", topic_id);
     let db = state.db.lock().await;
     let blogs = match db.fetch_blogs_by_topic(topic_id) {
         Ok(blogs) => blogs,
-        Err(_) => return bad_response(),
+        Err(_) => return bad_response(BadResponseType::InternalServerError),
     };
-
-    // Build an HTML list with links to each blog (assuming the blog route uses file_name as slug)
+    
     let blogs_html = blogs.into_iter()
-        .map(|blog| format!("<li><a href=\"/blog/{}\">{}</a></li>", blog.file_name, blog.title))
+        .map(|blog| format!(r#"
+            <div class="flex flex-col items-end">
+                <a 
+                    href="/blog/{}" 
+                    class=" cursor-pointer 
+                        transform transition duration-200 ease-in-out hover:-translate-x-1 hover:scale-105 
+                        hover:[text-shadow:0_0_10px_white]
+                        text-2xl font-bold"
+                >
+                    {}
+                </a>
+                <div class="text-base font-mono">{}</div>
+                <div class="text-base font-mono">{}</div>
+            </div>"#, blog.file_id, blog.title, blog.date, blog.description))
         .collect::<String>();
-    let html_content = format!(
-        "<html><body><h1>Blogs for Topic {}</h1><ul>{}</ul></body></html>",
-        topic_id, blogs_html
-    );
 
+    // add a back button in the top
+    let blogs_html = format!("<div hx-get=\"/topics\" hx-target=\"#scroll-menu\" hx-swap=\"innerHTML\" class=\"cursor-pointer\"><span class=\"material-symbols-outlined\">chevron_backward</span></div>{}", blogs_html);
+    
     Response::builder()
         .header("Content-Type", "text/html; charset=utf-8")
-        .body(html_content.into())
+        .body(blogs_html.into())
         .unwrap()
 }
 

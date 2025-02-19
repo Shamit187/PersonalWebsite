@@ -16,10 +16,10 @@ cursor.executemany("INSERT INTO topic (topic_name) VALUES (?)", topics)
 
 # Insert fake files (blog posts)
 files = [
-    ("tech-news", "Latest Tech News", date.today().isoformat(), "Stay updated with the latest in technology.", "https://example.com/tech.jpg"),
-    ("travel-adventure", "Travel Adventure", date.today().isoformat(), "Explore the world with these amazing travel stories.", "https://example.com/travel.jpg"),
-    ("lifestyle-tips", "Lifestyle Tips", date.today().isoformat(), "Improve your lifestyle with these tips.", "https://example.com/lifestyle.jpg"),
-    ("food-recipes", "Delicious Food Recipes", date.today().isoformat(), "Discover mouth-watering recipes.", "https://example.com/food.jpg"),
+    ("tech-news", "Latest Tech News", date.today().isoformat(), "Stay updated with the latest in technology.", "https://picsum.photos/1920/1080"),
+    ("travel-adventure", "Travel Adventure", date.today().isoformat(), "Explore the world with these amazing travel stories.", "https://picsum.photos/1920/1080"),
+    ("lifestyle-tips", "Lifestyle Tips", date.today().isoformat(), "Improve your lifestyle with these tips.", "https://picsum.photos/1920/1080"),
+    ("food-recipes", "Delicious Food Recipes", date.today().isoformat(), "Discover mouth-watering recipes.", "https://picsum.photos/1920/1080"),
 ]
 cursor.executemany(
     "INSERT INTO file (file_name, title, date, description, image_url) VALUES (?, ?, ?, ?, ?)",
@@ -40,7 +40,7 @@ file_map = {row[1]: row[0] for row in cursor.fetchall()}
 topic_file_entries = [
     (topic_map["Tech"], file_map["tech-news"], 1),
     (topic_map["Travel"], file_map["travel-adventure"], 1),
-    (topic_map["Lifestyle"], file_map["lifestyle-tips"], 1),
+    (topic_map["Lifestyle"], file_map["lifestyle-tips"], 1),w
     (topic_map["Food"], file_map["food-recipes"], 1),
     # Optionally, link a blog to multiple topics
     (topic_map["Tech"], file_map["lifestyle-tips"], 2),
