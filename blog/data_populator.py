@@ -40,7 +40,7 @@ file_map = {row[1]: row[0] for row in cursor.fetchall()}
 topic_file_entries = [
     (topic_map["Tech"], file_map["tech-news"], 1),
     (topic_map["Travel"], file_map["travel-adventure"], 1),
-    (topic_map["Lifestyle"], file_map["lifestyle-tips"], 1),w
+    (topic_map["Lifestyle"], file_map["lifestyle-tips"], 1),
     (topic_map["Food"], file_map["food-recipes"], 1),
     # Optionally, link a blog to multiple topics
     (topic_map["Tech"], file_map["lifestyle-tips"], 2),
