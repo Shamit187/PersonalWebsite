@@ -75,14 +75,12 @@ export default function Home() {
       { text: "About Me", link: "/fake" },
       { text: "Blog", link: "https://blog.alwaysdumb.com/"},
       { text: "Art Gallery", link: "/fake" },
-      { text: "Game Dev Journal", link: "/fake" },
-      { text: "Contact Me", link: "/fake" },
-      { text: "Projects", link: "/fake" },
-      { text: "Photography", link: "/fake" },
+      { text: "Journal", link: "/fake" },
+      { text: "Project Progress", link: "/fake" },
       { text: "Music", link: "/fake" },
-      { text: "Research", link: "/fake" },
+      { text: "Research Progress", link: "/fake" },
       { text: "Pomodoro", link: "/pomodoro" },
-      { text: "Map", link: "/map" },
+      { text: "Mind Map", link: "/map" },
     ];
     const buttonClasses = [
       "btn-blue",
