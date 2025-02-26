@@ -17,7 +17,9 @@ export interface SingleDetail {
 export interface NodeData extends d3.SimulationNodeDatum {
     id: string;
     group: number;
-    details: SingleDetail[];
+    title: string;
+    content: string;
+    image: string;
 }
 
 export interface LinkData {
@@ -28,22 +30,32 @@ export interface LinkData {
 
 export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
-    const wrapperRef = useRef<HTMLDivElement | null>(null); // For fullscreen sizing
+    // const wrapperRef = useRef<HTMLDivElement | null>(null); // For fullscreen sizing
 
     const [selectedNode, setSelectedNode] = useState<NodeData | null>(null); // Store hovered node details
     const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
     const initialTransform = useRef<d3.ZoomTransform | null>(null);
 
     const [dimensions, setDimensions] = useState({
-        width: typeof window !== "undefined" ? window.innerWidth : 1920, // Fallback width
-        height: typeof window !== "undefined" ? window.innerHeight : 1080 // Fallback height
+        width: typeof window !== "undefined" ? (window.innerWidth > 1024 ? window.innerWidth * 0.75 : window.innerWidth) : 1920, // pc has 3/4 th of the width allocated, while mobile has full width
+        height: typeof window !== "undefined" ? window.innerHeight : 1080
     });
 
     useEffect(() => {
-        if (!svgRef.current || !wrapperRef.current) return;
+        // if (!svgRef.current || !wrapperRef.current) return;
+        if (!svgRef.current) return
 
         const { width, height } = dimensions;
-        const color = d3.scaleOrdinal(d3.schemeCategory10);
+        // const color = d3.scaleSequential(d3.interpolateTurbo).domain([0, 1]);
+        const custom_color = [
+            "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
+            "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#a52a2a", "#ff4500",
+            "#32cd32", "#ff1493", "#00ced1", "#ff6347", "#8b4513", "#4682b4",
+            "#228b22", "#ffd700", "#ff00ff", "#00ff00", "#dc143c", "#00008b",
+            "#9932cc", "#ff8c00", "#008000", "#ff69b4", "#800080", "#008b8b"
+        ];        
+        const color = d3.scaleOrdinal(custom_color);
+        const max_color = 30;
 
         const links: LinkData[] = edgeList.map(d => ({ ...d }));
         const nodes: NodeData[] = nodeList.map(d => ({ ...d }));
@@ -104,7 +116,7 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
             .data(nodes)
             .join("circle")
             .attr("r", 8)
-            .attr("fill", d => color(d.group.toString()))
+            .attr("fill", d => color(String(d.group % max_color)))
             .call(
                 d3
                     .drag<SVGCircleElement, NodeData>()
@@ -125,8 +137,8 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
             .attr("y", d => (d.y !== undefined ? d.y : 0))
             .attr("dy", -10)
             .attr("text-anchor", "middle")
-            .attr("fill", "#333")
-            .attr("font-size", "12px")
+            .attr("fill", "#777")
+            .attr("font-size", width < 1024 ? "0.5rem" : "0.75rem")
             .attr("opacity", 0) // Hide text initially
             .text(d => d.id);
 
@@ -180,6 +192,29 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
             });
         }
 
+        // add legends
+        const legendGroup = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(50, 50)`);
+        const uniqueGroups = Array.from(new Set(nodes.map(d => d.group)));
+        legendGroup.selectAll("rect")
+            .data(uniqueGroups)
+            .join("rect")
+            .attr("x", 0)
+            .attr("y", (d, i) => i * 25)
+            .attr("width", 15)
+            .attr("height", 15)
+            .attr("fill", d => color(String(d % max_color)));
+        legendGroup.selectAll("text")
+            .data(uniqueGroups)
+            .join("text")
+            .attr("x", 20)
+            .attr("y", (d, i) => i * 25 + 12)
+            .attr("fill", "#777")
+            .attr("font-size", width < 1024 ? "0.5rem" : "0.75rem")
+            .text(d => `Topic Depth Level ${d}`);
+
+
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, [nodeList, edgeList, dimensions]);
@@ -187,30 +222,21 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
 
     return (
         <div className="w-screen h-screen flex flex-col md:flex-row">
-            <div ref={wrapperRef} className="md:w-3/4 w-full h-2/3 md:h-screen overflow-hidden relative">
+            <div className="md:w-3/4 w-full h-2/3 md:h-screen overflow-hidden relative">
                 <svg ref={svgRef}></svg>
             </div>
-            <div className="md:w-1/4 w-full md:h-screen h-1/3 overflow-y-auto p-4">
+            <div className="md:w-1/4 w-full md:h-screen h-1/3 overflow-y-auto px-4 py-10 md:py-10 no-scrollbar bg-neutral-900">
                 {selectedNode ? (
-                    <div key={selectedNode?.id}>
-                        {selectedNode?.details.map((detail, index) => {
-                            switch (detail.type) {
-                                case "text":
-                                    return <div key={index}>{detail.content}</div>;
-                                case "math":
-                                    return (
-                                        <div key={index}>
-                                            <MathJax>
-                                                {detail.content}
-                                            </MathJax>
-                                        </div>
-                                    );
-                                case "title":
-                                    return <h3 key={index}>{detail.content}</h3>;
-                                default:
-                                    return null;
-                            }
-                        })}
+                    <div key={selectedNode?.id} className="flex flex-col items-start space-y-4">
+                        <h3 className="text-lg font-bold">{selectedNode?.title}</h3>
+                        <div className="flex flex-col space-y-2">
+                            {selectedNode?.content.split("<br>").map((paragraph, index) => (
+                                <div key={index}><MathJax>{paragraph}</MathJax></div>
+                            ))}
+                        </div>
+                        {selectedNode?.image && (
+                            <img src={selectedNode?.image} alt={selectedNode?.id} className="rounded-lg" />
+                        )}
                     </div>
                 ) : (
                     <p>Hover over a node to see details</p>

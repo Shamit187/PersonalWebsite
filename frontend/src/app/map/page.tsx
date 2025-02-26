@@ -51,8 +51,7 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen bg-gray-900 text-white transition-colors duration-300 overflow-y-auto">
-      {/* Constant Dark-themed Navbar */}
+    <div className="h-screen bg-gray-900 text-white transition-colors duration-300 overflow-y-auto no-scrollbar">
       <nav className="bg-gray-800 text-white p-4 flex justify-between items-center">
         <Link href="/" className="text-lg font-bold">
           Home
