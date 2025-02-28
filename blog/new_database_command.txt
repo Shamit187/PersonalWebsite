@@ -1,4 +1,4 @@
-sqlite3 blog_database.db
+sqlite3 database.db
 
 -- Create 'topic' table
 CREATE TABLE topic (

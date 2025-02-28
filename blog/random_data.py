@@ -4,7 +4,7 @@ import sqlite3
 from datetime import datetime, timedelta
 
 # Database and files directory
-DATABASE = "blog_database.db"  # Replace with your actual database name
+DATABASE = "database.db"  # Replace with your actual database name
 FILES_DIR = "files"
 NUM_ENTRIES = 100  # Number of entries to generate
 

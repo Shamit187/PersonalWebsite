@@ -25,7 +25,7 @@ enum BadResponseType {
 #[tokio::main]
 async fn main() {
     // Initialize the database
-    let db = Database::new("blog_database.db").expect("Failed to initialize database");
+    let db = Database::new("database.db").expect("Failed to initialize database");
     let app_state = AppState {
         db: Arc::new(Mutex::new(db)),
     };
@@ -297,9 +297,20 @@ async fn get_topics(State(state): State<Arc<AppState>>) -> Response {
 
     // Generate the HTML fragment as a tags list
     let topics_html = topics.into_iter()
-        .map(|topic| format!("<div hx-get=\"/topics/{}\" hx-target=\"#scroll-menu\" hx-swap=\"innerHTML\" class=\"cursor-pointer transform transition duration-200 ease-in-out hover:-translate-x-1 hover:scale-105 hover:[text-shadow:0_0_10px_white]\">{}</div>", topic.topic_id, topic.topic_name))
+        .map(|topic| format!(r#"
+            <div 
+                hx-get=\"/topics/{}\" 
+                hx-target=\"\#scroll-menu\" 
+                hx-swap=\"innerHTML\" 
+                class=\"cursor-pointer transform transition duration-200 ease-in-out hover:-translate-x-1 hover:scale-105 hover:[text-shadow:0_0_10px_white]\"
+            >
+                {}
+            </div>
+            "#, topic.topic_id, topic.topic_name))
         .collect::<String>();
 
+    
+    
     Response::builder()
         .header("Content-Type", "text/html; charset=utf-8")
         .body(topics_html.into())

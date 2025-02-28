@@ -3,7 +3,7 @@ import os
 import shutil
 
 # Constants
-DATABASE_PATH = "../blog/blog_database.db"
+DATABASE_PATH = "../blog/database.db"
 FILES_FOLDER = "../blog/files"
 BACKGROUND_IMAGE_FILE = "background_image.txt"
 

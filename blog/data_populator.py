@@ -2,7 +2,7 @@ import sqlite3
 from datetime import date
 
 # Connect to the SQLite database
-conn = sqlite3.connect("blog_database.db")
+conn = sqlite3.connect("database.db")
 cursor = conn.cursor()
 
 # Insert fake topics
