@@ -11,14 +11,11 @@
         </div>
         <!-- Menu -->
         <div id="scroll-menu" 
-            class="flex flex-col space-y-4 p-10 text-white text-2xl font-mono items-end max-h-[80%]"
+            class="flex flex-col space-y-4 p-10 text-white text-2xl font-mono items-end max-h-[80%] max-w-[70%] overflow-y-auto no-scrollbar"
             hx-get="/topics"
             hx-trigger="load"
             hx-swap="innerHTML">
-            <a href="/topics/1">Tech</a>
-            <a href="/topics/2">Travel</a>
-            <a href="/topics/3">Lifestyle</a>
-            <a href="/topics/4">Food</a>
+            <!-- Automated Content -->
         </div>
     </div>
     <script>

@@ -1,6 +1,5 @@
-use axum::http::response;
 use axum::{
-    body::Body, extract::Path, extract::State, http::StatusCode, response::Html,
+    body::Body, extract::Path, extract::State, http::StatusCode,
     response::Response, routing::get, Router,
 };
 use std::fs;
@@ -297,18 +296,17 @@ async fn get_topics(State(state): State<Arc<AppState>>) -> Response {
 
     // Generate the HTML fragment as a tags list
     let topics_html = topics.into_iter()
-        .map(|topic| format!(r#"
+        .map(|topic| format!(r##"
             <div 
-                hx-get=\"/topics/{}\" 
-                hx-target=\"\#scroll-menu\" 
-                hx-swap=\"innerHTML\" 
-                class=\"cursor-pointer transform transition duration-200 ease-in-out hover:-translate-x-1 hover:scale-105 hover:[text-shadow:0_0_10px_white]\"
+                hx-get="/topics/{}" 
+                hx-target="#scroll-menu" 
+                hx-swap="innerHTML" 
+                class="cursor-pointer transform transition duration-200 ease-in-out hover:-translate-x-1 hover:scale-105 hover:[text-shadow:0_0_10px_white]"
             >
                 {}
             </div>
-            "#, topic.topic_id, topic.topic_name))
+            "##, topic.topic_id, topic.topic_name))
         .collect::<String>();
-
     
     
     Response::builder()
@@ -324,6 +322,27 @@ async fn get_blogs_by_topic(Path(topic_id): Path<i32>, State(state): State<Arc<A
         Ok(blogs) => blogs,
         Err(_) => return bad_response(BadResponseType::InternalServerError),
     };
+    let blog_count = blogs.len();
+    if blog_count == 0 {
+        return Response::builder()
+            .header("Content-Type", "text/html; charset=utf-8")
+            .body(r##"
+                <div 
+                    hx-get="/topics" 
+                    hx-target="#scroll-menu" 
+                    hx-swap="innerHTML" 
+                    class="cursor-pointer"
+                >
+                    <span class="material-symbols-outlined">chevron_backward</span>  
+                </div>
+                <div class="text-base font-mono text-right">
+                    No blogs found for this topic
+                </div>
+            "##.into())
+            .unwrap();
+    }
+
+    let blog_description_text = format!("{} blog(s) found for this topic", blog_count);
     
     let blogs_html = blogs.into_iter()
         .map(|blog| format!(r#"
@@ -333,17 +352,28 @@ async fn get_blogs_by_topic(Path(topic_id): Path<i32>, State(state): State<Arc<A
                     class=" cursor-pointer 
                         transform transition duration-200 ease-in-out hover:-translate-x-1 hover:scale-105 
                         hover:[text-shadow:0_0_10px_white]
-                        text-2xl font-bold"
+                        text-2xl font-bold text-right"
                 >
                     {}
                 </a>
-                <div class="text-base font-mono">{}</div>
-                <div class="text-base font-mono">{}</div>
+                <div class="text-base font-mono text-right">{}</div>
+                <div class="text-base font-mono text-right">{}</div>
             </div>"#, blog.file_id, blog.title, blog.date, blog.description))
         .collect::<String>();
 
     // add a back button in the top
-    let blogs_html = format!("<div hx-get=\"/topics\" hx-target=\"#scroll-menu\" hx-swap=\"innerHTML\" class=\"cursor-pointer\"><span class=\"material-symbols-outlined\">chevron_backward</span></div>{}", blogs_html);
+    let blogs_html = format!(r##"
+        <div 
+            hx-get="/topics" 
+            hx-target="#scroll-menu" 
+            hx-swap="innerHTML" 
+            class="cursor-pointer"
+        >
+            <span class="material-symbols-outlined">chevron_backward</span>  
+        </div>
+            <div class="text-base font-mono text-right">{}</div>   
+        {}
+        "##, blog_description_text, blogs_html);
     
     Response::builder()
         .header("Content-Type", "text/html; charset=utf-8")
