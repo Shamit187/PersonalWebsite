@@ -6,49 +6,49 @@ const nodes: NodeData[] = [
         group: 1,
         title: "Linear Algebra",
         content: "Linear algebra is the branch of mathematics concerning linear equations, linear functions, and their representations through matrices and vector spaces.",
-        image: ""
+        image: []
     },
     {
         id: "Vector Spaces",
         group: 2,
         title: "Vector Spaces",
         content: "A vector space is a collection of vectors that can be added together and multiplied by scalars while satisfying certain axioms.",
-        image: ""
+        image: []
     },
     {
         id: "Matrices",
         group: 2,
         title: "Matrices",
         content: "A matrix is a rectangular array of numbers arranged in rows and columns. It represents linear transformations and systems of equations.",
-        image: ""
+        image: []
     },
     {
         id: "Eigenvalues and Eigenvectors",
         group: 3,
         title: "Eigenvalues and Eigenvectors",
         content: "Given a square matrix \\(A\\), an eigenvector \\(v\\) and an eigenvalue \\(\\lambda\\) satisfy the equation \\(A v = \\lambda v\\).",
-        image: ""
+        image: []
     },
     {
         id: "Determinants",
         group: 3,
         title: "Determinants",
         content: "The determinant of a matrix \\(A\\) is a scalar that describes certain properties of the matrix, such as invertibility. It is denoted as \\(\\det(A)\\).",
-        image: ""
+        image: []
     },
     {
         id: "Linear Transformations",
         group: 2,
         title: "Linear Transformations",
         content: "A linear transformation is a function \\(T: V \\to W\\) that satisfies \\(T(a v + b w) = a T(v) + b T(w)\\) for all scalars \\(a, b\\) and vectors \\(v, w\\).",
-        image: ""
+        image: []
     },
     {
         id: "Basis and Dimension",
         group: 2,
         title: "Basis and Dimension",
         content: "A basis of a vector space \\(V\\) is a set of linearly independent vectors that span \\(V\\). The number of basis vectors is the dimension of \\(V\\).",
-        image: "https://image.alwaysdumb.com/blog/back.jpg/400"
+        image: ["https://image.alwaysdumb.com/blog/back.jpg/450"]
     }
 ];
 

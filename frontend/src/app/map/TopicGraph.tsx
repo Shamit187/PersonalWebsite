@@ -19,7 +19,11 @@ export interface NodeData extends d3.SimulationNodeDatum {
     group: number;
     title: string;
     content: string;
-    image: string;
+    /*
+    * Image URLs for the node
+    * Set Image width to 450px width to optimize performance
+    */
+    image: string[];
 }
 
 export interface LinkData {
@@ -196,23 +200,43 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
         const legendGroup = svg.append("g")
             .attr("class", "legend")
             .attr("transform", `translate(50, 50)`);
+        legendGroup.append("text")
+            .attr("x", 0)
+            .attr("y", -15)  
+            .attr("fill", "#888")
+            .attr("font-size", width < 1024 ? "0.75rem" : "1rem")
+            .text("Topic"); 
+        legendGroup.append("text")
+            .attr("x", 0)
+            .attr("y", 0)  
+            .attr("fill", "#888")
+            .attr("font-size", width < 1024 ? "0.75rem" : "1rem")
+            .text("Depth"); 
+        legendGroup.append("text")
+            .attr("x", 0)
+            .attr("y", 15)  
+            .attr("fill", "#888")
+            .attr("font-size", width < 1024 ? "0.75rem" : "1rem")
+            .text("Level"); 
         const uniqueGroups = Array.from(new Set(nodes.map(d => d.group)));
         legendGroup.selectAll("rect")
             .data(uniqueGroups)
             .join("rect")
             .attr("x", 0)
-            .attr("y", (d, i) => i * 25)
+            .attr("y", (d, i) => 30 + i * 25)
             .attr("width", 15)
             .attr("height", 15)
             .attr("fill", d => color(String(d % max_color)));
-        legendGroup.selectAll("text")
+        legendGroup.selectAll("text.label")
             .data(uniqueGroups)
             .join("text")
+            .attr("class", "label")
             .attr("x", 20)
-            .attr("y", (d, i) => i * 25 + 12)
+            .attr("y", (d, i) => 30 +  i * 25 + 12)
             .attr("fill", "#777")
             .attr("font-size", width < 1024 ? "0.5rem" : "0.75rem")
-            .text(d => `Topic Depth Level ${d}`);
+            .text(d => `${d}`);
+
 
 
         window.addEventListener("resize", handleResize);
@@ -221,7 +245,7 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
 
 
     return (
-        <div className="w-screen h-screen flex flex-col md:flex-row">
+        <div className="w-screen h-screen flex flex-col md:flex-row bg-neutral-950">
             <div className="md:w-3/4 w-full h-2/3 md:h-screen overflow-hidden relative">
                 <svg ref={svgRef}></svg>
             </div>
@@ -234,9 +258,11 @@ export const TopicGraph = ({ nodeList, edgeList }: TopicGraphProps) => {
                                 <div key={index}><MathJax>{paragraph}</MathJax></div>
                             ))}
                         </div>
-                        {selectedNode?.image && (
-                            <img src={selectedNode?.image} alt={selectedNode?.id} className="rounded-lg" />
-                        )}
+                        <div className="flex flex-col space-y-2">
+                            {selectedNode?.image.map((url, index) => (
+                                <img key={index} src={url} alt={selectedNode?.title} className="rounded-md"/>
+                            ))}
+                        </div>
                     </div>
                 ) : (
                     <p>Hover over a node to see details</p>
